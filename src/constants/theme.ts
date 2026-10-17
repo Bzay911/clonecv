@@ -7,20 +7,39 @@ import '@/global.css';
 
 import { Platform } from 'react-native';
 
+// CloneCV design-system tokens (from the "CloneCV mobile app" design).
 export const Colors = {
   light: {
-    text: '#000000',
-    background: '#ffffff',
-    backgroundElement: '#F0F0F3',
-    backgroundSelected: '#E0E1E6',
-    textSecondary: '#60646C',
+    text: '#0F1E3D',
+    background: '#F6F9FC',
+    backgroundElement: '#EDF2F8',
+    backgroundSelected: '#E4EFFE',
+    textSecondary: '#4E5D78',
+    surfaceRaised: '#FFFFFF',
+    line: '#DCE4EE',
+    lineStrong: '#7686A1',
+    navy: '#0F1E3D',
+    onNavy: '#FFFFFF',
+    sky: '#2563C9',
+    skyPressed: '#1D51A8',
+    onSky: '#FFFFFF',
+    skySoft: '#E4EFFE',
   },
   dark: {
-    text: '#ffffff',
-    background: '#000000',
-    backgroundElement: '#212225',
-    backgroundSelected: '#2E3135',
-    textSecondary: '#B0B4BA',
+    text: '#EEF3FA',
+    background: '#0B1426',
+    backgroundElement: '#08101F',
+    backgroundSelected: '#14305C',
+    textSecondary: '#A6B4CA',
+    surfaceRaised: '#121E36',
+    line: '#24324F',
+    lineStrong: '#6C7FA3',
+    navy: '#0F1E3D',
+    onNavy: '#FFFFFF',
+    sky: '#6AAEFF',
+    skyPressed: '#8EC2FF',
+    onSky: '#0B1426',
+    skySoft: '#14305C',
   },
 } as const;
 
