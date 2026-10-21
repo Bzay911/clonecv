@@ -4,11 +4,11 @@
     "slug": "clonecv",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/images/icon.png",
+    "icon": "./assets/images/clonecv-app-logo.png",
     "scheme": "clonecv",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "icon": "./assets/expo.icon",
+      "icon": "./assets/images/clonecv-app-logo.png",
       "bundleIdentifier": "com.beejaya.clonecv",
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false
@@ -37,7 +37,8 @@
           "image": "./assets/images/splash-icon.png",
           "imageWidth": 76
         }
-      ]
+      ],
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true,

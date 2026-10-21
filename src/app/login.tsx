@@ -1,13 +1,52 @@
 import { Image } from 'expo-image';
+import { router } from 'expo-router';
 import { SymbolView } from 'expo-symbols';
-import { KeyboardAvoidingView, Platform, Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { useState } from 'react';
+import {
+  ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  Text,
+  TextInput,
+  View,
+} from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { useTheme } from '@/hooks/use-theme';
+import { authClient } from '@/lib/auth-client';
+
+const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
   // Icons and the placeholder take colour props, not classes, so they still read the theme.
   const colors = useTheme();
+  const [email, setEmail] = useState('');
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleContinue() {
+    const trimmed = email.trim().toLowerCase();
+    if (!EMAIL_RE.test(trimmed)) {
+      setError('Enter a valid email address.');
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+    const { error } = await authClient.emailOtp.sendVerificationOtp({
+      email: trimmed,
+      type: 'sign-in',
+    });
+    setLoading(false);
+
+    if (error) {
+      setError(error.message ?? 'Could not send the code. Try again.');
+      return;
+    }
+    router.push({ pathname: '/verify', params: { email: trimmed } });
+  }
 
   return (
     <SafeAreaView className="flex-1 bg-surface dark:bg-surface-dark">
@@ -28,7 +67,7 @@ export default function LoginScreen() {
               Sign in
             </Text>
             <Text className="text-center text-[15px] leading-[22px] text-ink-muted dark:text-ink-muted-dark">
-              New here? We&apos;ll create your account.
+              New to CloneCV? We&apos;ll create your account.
             </Text>
           </View>
 
@@ -62,21 +101,35 @@ export default function LoginScreen() {
                 autoComplete="email"
                 autoCorrect={false}
                 textContentType="emailAddress"
+                value={email}
+                onChangeText={setEmail}
+                onSubmitEditing={handleContinue}
+                returnKeyType="send"
+                editable={!loading}
                 className="h-[52px] rounded-md border border-line bg-surface-sunken px-3.5 text-[15px] text-ink dark:border-line-dark dark:bg-surface-sunken-dark dark:text-ink-dark"
               />
+              {error && <Text className="text-[13px] leading-5 text-red-600">{error}</Text>}
             </View>
 
             <Pressable
               accessibilityRole="button"
-              className="h-[52px] flex-row items-center justify-center gap-2 rounded-md bg-ink active:opacity-80 dark:bg-ink-dark">
-              <Text className="text-base font-semibold text-surface-raised dark:text-surface-dark">
-                Continue
-              </Text>
-              <SymbolView
-                name={{ ios: 'arrow.right', android: 'arrow_forward', web: 'arrow_forward' }}
-                size={18}
-                tintColor={colors.background}
-              />
+              onPress={handleContinue}
+              disabled={loading}
+              className="h-[52px] flex-row items-center justify-center gap-2 rounded-md bg-ink active:opacity-80 disabled:opacity-60 dark:bg-ink-dark">
+              {loading ? (
+                <ActivityIndicator color={colors.background} />
+              ) : (
+                <>
+                  <Text className="text-base font-semibold text-surface-raised dark:text-surface-dark">
+                    Continue
+                  </Text>
+                  <SymbolView
+                    name={{ ios: 'arrow.right', android: 'arrow_forward', web: 'arrow_forward' }}
+                    size={18}
+                    tintColor={colors.background}
+                  />
+                </>
+              )}
             </Pressable>
           </View>
 
