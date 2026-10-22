@@ -88,10 +88,10 @@ export default function VerifyScreen() {
           </Pressable>
 
           <View className="items-center gap-2">
-            <Text className="text-[30px] font-bold leading-[38px] tracking-[-0.6px] text-ink dark:text-ink-dark">
+            <Text className="text-2xl font-bold tracking-[-0.6px] text-ink dark:text-ink-dark">
               Check your email
             </Text>
-            <Text className="text-center text-[15px] leading-[22px] text-ink-muted dark:text-ink-muted-dark">
+            <Text className="text-center text-sm text-ink-muted dark:text-ink-muted-dark">
               We sent a {OTP_LENGTH}-digit code to{'\n'}
               <Text className="font-semibold text-ink dark:text-ink-dark">{email}</Text>
             </Text>
@@ -109,9 +109,9 @@ export default function VerifyScreen() {
               maxLength={OTP_LENGTH}
               autoFocus
               editable={!loading}
-              className="h-[60px] rounded-md border border-line bg-surface-sunken px-3.5 text-center text-[24px] font-semibold tracking-[12px] text-ink dark:border-line-dark dark:bg-surface-sunken-dark dark:text-ink-dark"
+              className="h-[60px] rounded-md border border-line bg-surface-sunken px-3.5 text-center text-2xl font-semibold tracking-[12px] text-ink dark:border-line-dark dark:bg-surface-sunken-dark dark:text-ink-dark"
             />
-            {error && <Text className="text-center text-[13px] leading-5 text-red-600">{error}</Text>}
+            {error && <Text className="text-center text-xs text-red-600">{error}</Text>}
           </View>
 
           <Pressable
@@ -122,14 +122,14 @@ export default function VerifyScreen() {
             {loading ? (
               <ActivityIndicator color={colors.background} />
             ) : (
-              <Text className="text-base font-semibold text-surface-raised dark:text-surface-dark">
+              <Text className="text-sm font-semibold text-surface-raised dark:text-surface-dark">
                 Verify
               </Text>
             )}
           </Pressable>
 
           <Pressable accessibilityRole="button" onPress={handleResend} disabled={cooldown > 0}>
-            <Text className="text-center text-[14px] text-ink-muted dark:text-ink-muted-dark">
+            <Text className="text-center text-sm text-ink-muted dark:text-ink-muted-dark">
               {cooldown > 0 ? (
                 `Resend code in ${cooldown}s`
               ) : (

@@ -4,6 +4,18 @@ module.exports = {
   presets: [require('nativewind/preset')],
   darkMode: 'media',
   theme: {
+    // Type scale. Replaces Tailwind's defaults, so only these sizes exist.
+    // Each carries its line height; don't add `leading-*` or `text-[Npx]`.
+    //   xs  — captions, helper/error text, badges, eyebrow labels
+    //   sm  — body text, inputs, field labels, buttons, links
+    //   lg  — section and card titles, app name in the header
+    //   2xl — screen titles only
+    fontSize: {
+      xs: ['13px', { lineHeight: '18px' }],
+      sm: ['15px', { lineHeight: '22px' }],
+      lg: ['19px', { lineHeight: '24px' }],
+      '2xl': ['30px', { lineHeight: '38px' }],
+    },
     extend: {
       // CloneCV design-system tokens. Use with `dark:` for the dark values,
       // e.g. `bg-surface dark:bg-surface-dark`.

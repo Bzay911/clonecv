@@ -63,10 +63,10 @@ export default function LoginScreen() {
               contentFit="contain"
               accessibilityLabel="CloneCV logo"
             />
-            <Text className="mt-4 text-[30px] font-bold leading-[38px] tracking-[-0.6px] text-ink dark:text-ink-dark">
+            <Text className="mt-4 text-2xl font-bold tracking-[-0.6px] text-ink dark:text-ink-dark">
               Sign in
             </Text>
-            <Text className="text-center text-[15px] leading-[22px] text-ink-muted dark:text-ink-muted-dark">
+            <Text className="text-center text-sm text-ink-muted dark:text-ink-muted-dark">
               New to CloneCV? We&apos;ll create your account.
             </Text>
           </View>
@@ -76,7 +76,7 @@ export default function LoginScreen() {
               accessibilityRole="button"
               className="h-[52px] flex-row items-center justify-center gap-2.5 rounded-md border border-line bg-surface-raised active:bg-surface-sunken dark:border-line-dark dark:bg-surface-raised-dark dark:active:bg-surface-sunken-dark">
               <Text className="text-lg font-bold text-[#4285F4]">G</Text>
-              <Text className="text-base font-semibold text-ink dark:text-ink-dark">
+              <Text className="text-sm font-semibold text-ink dark:text-ink-dark">
                 Continue with Google
               </Text>
             </Pressable>
@@ -90,7 +90,7 @@ export default function LoginScreen() {
             </View>
 
             <View className="gap-2">
-              <Text className="text-sm font-semibold leading-5 text-ink dark:text-ink-dark">
+              <Text className="text-sm font-semibold text-ink dark:text-ink-dark">
                 Email
               </Text>
               <TextInput
@@ -106,9 +106,9 @@ export default function LoginScreen() {
                 onSubmitEditing={handleContinue}
                 returnKeyType="send"
                 editable={!loading}
-                className="h-[52px] rounded-md border border-line bg-surface-sunken px-3.5 text-[15px] text-ink dark:border-line-dark dark:bg-surface-sunken-dark dark:text-ink-dark"
+                className="h-[52px] rounded-md border border-line bg-surface-sunken px-3.5 text-sm text-ink dark:border-line-dark dark:bg-surface-sunken-dark dark:text-ink-dark"
               />
-              {error && <Text className="text-[13px] leading-5 text-red-600">{error}</Text>}
+              {error && <Text className="text-xs text-red-600">{error}</Text>}
             </View>
 
             <Pressable
@@ -120,7 +120,7 @@ export default function LoginScreen() {
                 <ActivityIndicator color={colors.background} />
               ) : (
                 <>
-                  <Text className="text-base font-semibold text-surface-raised dark:text-surface-dark">
+                  <Text className="text-sm font-semibold text-surface-raised dark:text-surface-dark">
                     Continue
                   </Text>
                   <SymbolView
@@ -133,7 +133,7 @@ export default function LoginScreen() {
             </Pressable>
           </View>
 
-          <Text className="text-center text-[13px] leading-5 text-ink-muted dark:text-ink-muted-dark">
+          <Text className="text-center text-xs text-ink-muted dark:text-ink-muted-dark">
             By continuing, you agree to our{' '}
             <Text className="text-ink underline dark:text-ink-dark">Terms</Text> and{' '}
             <Text className="text-ink underline dark:text-ink-dark">Privacy Policy</Text>.

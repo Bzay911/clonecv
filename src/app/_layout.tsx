@@ -21,6 +21,7 @@ export default function RootLayout() {
   return (
     <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
       <AnimatedSplashOverlay />
+      {/* Screens draw their own headers; the account tab has its own Stack for its large title. */}
       <Stack screenOptions={{ headerShown: false }}>
         <Stack.Protected guard={isLoggedIn}>
           <Stack.Screen name="(protected)" />

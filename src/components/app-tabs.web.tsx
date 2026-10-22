@@ -30,8 +30,8 @@ export default function AppTabs() {
           <TabTrigger name="applications" href="/applications" asChild>
             <TabButton>Applications</TabButton>
           </TabTrigger>
-          <TabTrigger name="profile" href="/profile" asChild>
-            <TabButton>Profile</TabButton>
+          <TabTrigger name="account" href="/account" asChild>
+            <TabButton>Account</TabButton>
           </TabTrigger>
         </CustomTabList>
       </TabList>

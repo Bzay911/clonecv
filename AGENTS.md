@@ -29,6 +29,10 @@ Run lint and typecheck before declaring any task done.
 - Import `Link`, `router`, and `useLocalSearchParams` from `expo-router`.
 - Docs: https://docs.expo.dev/router/introduction.md
 
+## Typography
+
+Font sizes come only from the scale in `tailwind.config.js`: `text-xs` (captions, helper/error text, badges), `text-sm` (body, inputs, labels, buttons), `text-lg` (section/card titles), `text-2xl` (screen titles only). Each includes its line height — never use `text-[Npx]` or `leading-*`.
+
 ## Building with EAS
 
 Use EAS to build, sign, and submit the app in the cloud (`eas build`, `eas submit`) and to ship over-the-air updates (`eas update`) — no local Xcode or Android Studio required. Run EAS CLI as `bunx eas-cli <command>` in Bun projects, or `npx eas-cli@latest <command>` otherwise; substitute that for bare `eas` in docs examples.
