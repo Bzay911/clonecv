@@ -18,7 +18,7 @@ export default function HomeScreen() {
   return (
     <SafeAreaView
       edges={["top"]}
-      className="flex-1 bg-surface dark:bg-surface-dark"
+      className="flex-1 bg-[#F2F2F7] dark:bg-surface-dark"
     >
       <ScrollView
         contentContainerClassName="gap-6 px-4 pb-8 pt-3"

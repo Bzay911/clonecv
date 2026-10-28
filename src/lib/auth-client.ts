@@ -3,9 +3,10 @@ import { emailOTPClient } from 'better-auth/client/plugins';
 import { createAuthClient } from 'better-auth/react';
 import * as SecureStore from 'expo-secure-store';
 
+import { SITE_URL } from '@/constants/api-config';
+
 export const authClient = createAuthClient({
-  // Override with EXPO_PUBLIC_API_URL in .env to point at a local server during development.
-  baseURL: process.env.EXPO_PUBLIC_API_URL ?? 'https://clonecv.com',
+  baseURL: SITE_URL,
   plugins: [
     expoClient({
       scheme: 'clonecv',

@@ -1,11 +1,12 @@
-import '@/global.css';
+import "@/global.css";
 
-import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useColorScheme } from 'react-native';
+import { DarkTheme, DefaultTheme, Stack, ThemeProvider } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { useColorScheme } from "react-native";
 
-import { AnimatedSplashOverlay } from '@/components/animated-icon';
-import { authClient } from '@/lib/auth-client';
+import { AnimatedSplashOverlay } from "@/components/animated-icon";
+import { authClient } from "@/lib/auth-client";
 
 SplashScreen.preventAutoHideAsync();
 
@@ -19,19 +20,31 @@ export default function RootLayout() {
   const isLoggedIn = !!session;
 
   return (
-    <ThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-      <AnimatedSplashOverlay />
-      {/* Screens draw their own headers; the account tab has its own Stack for its large title. */}
-      <Stack screenOptions={{ headerShown: false }}>
-        <Stack.Protected guard={isLoggedIn}>
-          <Stack.Screen name="(protected)" />
-        </Stack.Protected>
+    // Needed for gestures like dragging the bottom sheet.
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ThemeProvider value={colorScheme === "dark" ? DarkTheme : DefaultTheme}>
+        <AnimatedSplashOverlay />
+        {/* Screens draw their own headers; the account tab has its own Stack for its large title. */}
+        <Stack screenOptions={{ headerShown: false }}>
+          <Stack.Protected guard={isLoggedIn}>
+            <Stack.Screen name="(protected)" />
+            {/* Outside the tabs so it covers the tab bar. */}
+            <Stack.Screen
+              name="resume/[id]"
+              options={{
+                headerShown: true,
+                title: "Resume",
+                headerBackButtonDisplayMode: "minimal",
+              }}
+            />
+          </Stack.Protected>
 
-        <Stack.Protected guard={!isLoggedIn}>
-          <Stack.Screen name="login" />
-          <Stack.Screen name="verify" />
-        </Stack.Protected>
-      </Stack>
-    </ThemeProvider>
+          <Stack.Protected guard={!isLoggedIn}>
+            <Stack.Screen name="login" />
+            <Stack.Screen name="verify" />
+          </Stack.Protected>
+        </Stack>
+      </ThemeProvider>
+    </GestureHandlerRootView>
   );
 }

@@ -68,7 +68,7 @@ export default function VerifyScreen() {
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-surface dark:bg-surface-dark">
+    <SafeAreaView className="flex-1 bg-[#F2F2F7] dark:bg-surface-dark">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
         className="flex-1">
