@@ -1,99 +1,71 @@
-import BottomSheet, { BottomSheetView } from "@gorhom/bottom-sheet";
-import { useState, type ReactNode } from "react";
+import Ionicons from "@expo/vector-icons/Ionicons";
+import BottomSheet from "@gorhom/bottom-sheet";
+import { Stack } from "expo-router";
+import { useState } from "react";
 import {
+  Alert,
   Pressable,
-  ScrollView,
   Text,
   useColorScheme,
+  useWindowDimensions,
   View,
 } from "react-native";
+import { ResumableZoom } from "react-native-zoom-toolkit";
 
-import resume from "@/dummydata/resumedata/resume.json";
+import EditPanel from "@/components/resume/edit-panel";
+import ResumeChat from "@/components/resume/resume-chat";
+import ResumePage, { PAGE_WIDTH } from "@/components/resume/resume-page";
 
 const TABS = ["Chat", "Edit", "Design"] as const;
 type Tab = (typeof TABS)[number];
 
-// Every resume shows the same dummy data until the details endpoint exists.
 export default function ResumeDetailScreen() {
-  const { personal, education, skills, projects } = resume;
   const [tab, setTab] = useState<Tab>("Chat");
   const dark = useColorScheme() === "dark";
+  const { width, height } = useWindowDimensions();
+
+  const onDownload = () =>
+    Alert.alert("Download resume?", undefined, [
+      { text: "Cancel", style: "cancel" },
+      { text: "Download" },
+    ]);
 
   return (
     <>
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        className="flex-1 bg-[#F2F2F7] dark:bg-black"
-        contentContainerClassName="px-4 pb-40 pt-3"
+      <Stack.Screen
+        options={{
+          headerRight: () => (
+            <Pressable onPress={onDownload} hitSlop={8}>
+              <Ionicons
+                name="download-outline"
+                size={22}
+                color={dark ? "#FFFFFF" : "#000000"}
+              />
+            </Pressable>
+          ),
+        }}
+      />
+      <ResumableZoom
+        // Stop at the page's real size; zooming past it stretches the text and blurs it.
+        maxScale={PAGE_WIDTH / (width - 32)}
+        style={{
+          flex: 1,
+          // Keep the page clear of the collapsed sheet (its 15% snap point).
+          marginBottom: height * 0.15,
+          backgroundColor: dark ? "#000000" : "#F2F2F7",
+        }}
       >
-        <View className="gap-6 bg-white p-5 dark:bg-[#1C1C1E]">
-          <View className="items-center gap-1">
-            <Text className="text-2xl font-bold text-black dark:text-white">
-              {personal.fullName}
-            </Text>
-            <Text className="text-center text-xs text-[#8E8E93]">
-              {personal.headline}
-            </Text>
-            <Text className="text-center text-xs text-[#8E8E93]">
-              {personal.email} | {personal.phone}
-            </Text>
-          </View>
-
-          <Section title="Summary">
-            <Text className="text-sm text-black dark:text-white">
-              {personal.summary}
-            </Text>
-          </Section>
-
-          <Section title="Education">
-            {education.map((item) => (
-              <View key={item.school}>
-                <Text className="text-sm font-semibold text-black dark:text-white">
-                  {item.school}
-                </Text>
-                <Text className="text-xs italic text-[#8E8E93]">
-                  {item.degree}
-                </Text>
-                <Text className="text-xs italic text-[#8E8E93]">
-                  {item.startDate} – {item.endDate}
-                </Text>
-              </View>
-            ))}
-          </Section>
-
-          <Section title="Skills">
-            {skills.groups.map((group) => (
-              <Text
-                key={group.category}
-                className="text-sm text-black dark:text-white"
-              >
-                <Text className="font-semibold">{group.category}: </Text>
-                {group.items.join(", ")}
-              </Text>
-            ))}
-          </Section>
-
-          <Section title="Projects">
-            {projects.map((project) => (
-              <View key={project.name}>
-                <Text className="text-sm font-semibold text-black dark:text-white">
-                  {project.name}
-                </Text>
-                <Text className="text-xs italic text-[#8E8E93]">
-                  {project.link}
-                </Text>
-              </View>
-            ))}
-          </Section>
-        </View>
-      </ScrollView>
+        <ResumePage />
+      </ResumableZoom>
 
       <BottomSheet
         snapPoints={["15%", "50%", "90%"]}
         backgroundStyle={{ backgroundColor: dark ? "#1C1C1E" : "#FFFFFF" }}
         handleIndicatorStyle={{ backgroundColor: "#8E8E93" }}
+        enableDynamicSizing={false}
+        keyboardBlurBehavior="restore"
       >
-        <BottomSheetView style={{ paddingHorizontal: 16, paddingBottom: 16 }}>
+        <View className="px-4 pb-3">
           <View className="flex-row rounded-md bg-[#F2F2F7] p-1 dark:bg-black">
             {TABS.map((name) => (
               <Pressable
@@ -109,19 +81,11 @@ export default function ResumeDetailScreen() {
               </Pressable>
             ))}
           </View>
-        </BottomSheetView>
+        </View>
+
+        {tab === "Chat" && <ResumeChat />}
+        {tab === "Edit" && <EditPanel />}
       </BottomSheet>
     </>
-  );
-}
-
-function Section({ title, children }: { title: string; children: ReactNode }) {
-  return (
-    <View className="gap-2">
-      <Text className="border-b border-black pb-1 text-sm font-bold uppercase text-black dark:border-white dark:text-white">
-        {title}
-      </Text>
-      {children}
-    </View>
   );
 }

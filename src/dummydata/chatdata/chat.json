@@ -1,0 +1,92 @@
+[
+  {
+    "id": "1",
+    "role": "user",
+    "text": "Review it and suggest improvements"
+  },
+  {
+    "id": "2",
+    "role": "ai",
+    "text": "Your resume is clear and well organised. Three things would make it stronger:\n\n1. Add an experience entry, even a part-time or volunteer role.\n2. Describe what Mantis AI Hairstyler does and the tech you used.\n3. Rewrite your summary in first person without \"Has used\", e.g. \"Built React Native apps using REST APIs…\""
+  },
+  {
+    "id": "3",
+    "role": "user",
+    "text": "Can you write a description for the Mantis project?"
+  },
+  {
+    "id": "4",
+    "role": "ai",
+    "text": "Here's a draft:\n\n\"Built a React Native app that uses AI to preview hairstyles on a user's photo, with a REST API backend and a relational database for saved looks.\"\n\nWant me to add it to your resume?"
+  },
+  {
+    "id": "5",
+    "role": "user",
+    "text": "Yes, add it"
+  },
+  {
+    "id": "6",
+    "role": "ai",
+    "text": "Done. I added the description under Projects → Mantis AI Hairstyler."
+  },
+  {
+    "id": "7",
+    "role": "user",
+    "text": "Tailor it to a job"
+  },
+  {
+    "id": "8",
+    "role": "ai",
+    "text": "Sure. Paste the job ad, or tell me the role and company you're applying for."
+  },
+  {
+    "id": "9",
+    "role": "user",
+    "text": "Junior React Native Developer at Canva. They want React Native, TypeScript, REST APIs and some testing experience."
+  },
+  {
+    "id": "10",
+    "role": "ai",
+    "text": "Good match. Here's what I'd change:\n\n1. Headline: \"Junior React Native Developer | TypeScript\".\n2. Skills: add TypeScript and Jest, if you've used them.\n3. Summary: lead with React Native and mention building complete apps.\n\nHave you used TypeScript or Jest?"
+  },
+  {
+    "id": "11",
+    "role": "user",
+    "text": "I use TypeScript every day but haven't used Jest"
+  },
+  {
+    "id": "12",
+    "role": "ai",
+    "text": "Then I'll add TypeScript and leave Jest out, so everything on your resume is something you can talk about in an interview."
+  },
+  {
+    "id": "13",
+    "role": "user",
+    "text": "Okay, go ahead"
+  },
+  {
+    "id": "14",
+    "role": "ai",
+    "text": "Done. I updated your headline, added TypeScript under Mobile Development, and rewrote your summary:\n\n\"Mobile developer building React Native apps with TypeScript, REST APIs and relational databases. Bachelor's in Mobile Apps Development, now studying a Master's in Information Technology.\""
+  },
+  {
+    "id": "15",
+    "role": "user",
+    "text": "Make it more concise"
+  },
+  {
+    "id": "16",
+    "role": "ai",
+    "text": "Here's a shorter version:\n\n\"React Native developer working in TypeScript, with a Bachelor's in Mobile Apps Development and a Master's in IT underway.\"\n\nShould I replace the summary with this?"
+  },
+  {
+    "id": "17",
+    "role": "user",
+    "text": "Yes please"
+  },
+  {
+    "id": "18",
+    "role": "ai",
+    "text": "Updated. Your resume now fits comfortably on one page."
+  }
+]
