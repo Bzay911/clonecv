@@ -1,8 +1,8 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link } from "expo-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import {
-  Alert,
+  ActivityIndicator,
   FlatList,
   Modal,
   Pressable,
@@ -12,23 +12,19 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { authClient } from "@/lib/auth-client";
-import { listResumes } from "@/lib/resumes";
-import type { Resume } from "@/types/resume";
+import { useResumes } from "@/features/resumes/queries";
 
 export default function ResumesScreen() {
-  const [resumes, setResumes] = useState<Resume[]>([]);
+  const {
+    data: resumes = [],
+    error,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useResumes();
   const [showInput, setShowInput] = useState(false);
   const [name, setName] = useState("");
   const insets = useSafeAreaInsets();
-
-  useEffect(() => {
-    listResumes().then((result) => {
-      if (result.ok) setResumes(result.data);
-      else if (result.error === "Unauthorized") authClient.signOut();
-      else Alert.alert(result.error);
-    });
-  }, []);
 
   const closeInput = () => {
     setShowInput(false);
@@ -39,6 +35,17 @@ export default function ResumesScreen() {
     <>
       <FlatList
         data={resumes}
+        onRefresh={refetch}
+        refreshing={isRefetching}
+        ListEmptyComponent={
+          isLoading ? (
+            <ActivityIndicator className="mt-10" />
+          ) : error ? (
+            <Text className="mt-10 text-center text-[#8E8E93]">
+              {error.message}
+            </Text>
+          ) : null
+        }
         keyExtractor={(item) => item.id}
         contentInsetAdjustmentBehavior="automatic"
         className="flex-1 bg-[#F2F2F7] dark:bg-black"

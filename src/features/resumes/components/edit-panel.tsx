@@ -5,11 +5,17 @@ import {
 import type { ReactNode } from "react";
 import { Text, useColorScheme, View } from "react-native";
 
-import resume from "@/dummydata/resumedata/resume.json";
+import type { ResumeContent } from "../types";
 
-// Fields are prefilled from the dummy data. Changes aren't saved yet.
-export default function EditPanel() {
-  const { personal, experience, education, skills, projects } = resume;
+// Fields are prefilled from the saved resume. Changes aren't saved yet.
+export default function EditPanel({ content }: { content: ResumeContent }) {
+  const {
+    basics = {},
+    experiences = [],
+    education = [],
+    skills = [],
+    projects = [],
+  } = content;
 
   return (
     <BottomSheetScrollView
@@ -21,20 +27,20 @@ export default function EditPanel() {
       }}
     >
       <Section title="Personal Information">
-        <Field label="Full name" value={personal.fullName} />
-        <Field label="Headline" value={personal.headline} />
-        <Field label="Email" value={personal.email} />
-        <Field label="Phone" value={personal.phone} />
+        <Field label="Full name" value={basics.fullName ?? ""} />
+        <Field label="Headline" value={basics.headline ?? ""} />
+        <Field label="Email" value={basics.email ?? ""} />
+        <Field label="Phone" value={basics.phone ?? ""} />
         <Field
           label="Location"
-          value={personal.location}
+          value={basics.location ?? ""}
           placeholder="Melbourne, VIC"
         />
-        <Field label="Summary" value={personal.summary} multiline />
+        <Field label="Summary" value={basics.summary ?? ""} multiline />
       </Section>
 
       <Section title="Experience">
-        {experience.length === 0 && (
+        {experiences.length === 0 && (
           <View className="gap-0.5 rounded-lg border border-dashed border-[#C7C7CC] p-4 dark:border-[#38383A]">
             <Text className="text-sm font-semibold text-black dark:text-white">
               No experience yet
@@ -42,33 +48,49 @@ export default function EditPanel() {
             <Text className="text-xs text-[#8E8E93]">Add a role.</Text>
           </View>
         )}
+        {experiences.map((job, i) => (
+          <Card key={i}>
+            <Field label="Role" value={job.role ?? ""} />
+            <Field label="Company" value={job.company ?? ""} />
+            <Field label="Dates" value={job.dates ?? ""} />
+            <Field
+              label="Highlights"
+              value={(job.highlights ?? []).join("\n")}
+              multiline
+            />
+          </Card>
+        ))}
       </Section>
 
       <Section title="Education">
-        {education.map((item) => (
-          <Card key={item.school}>
-            <Field label="School" value={item.school} />
-            <Field label="Degree" value={item.degree} />
-            <Field label="Start date" value={item.startDate} />
-            <Field label="End date" value={item.endDate} />
+        {education.map((item, i) => (
+          <Card key={i}>
+            <Field label="Institution" value={item.institution ?? ""} />
+            <Field label="Degree" value={item.degree ?? ""} />
+            <Field label="Field" value={item.field ?? ""} />
+            <Field label="Dates" value={item.dates ?? ""} />
           </Card>
         ))}
       </Section>
 
       <Section title="Skills">
-        {skills.groups.map((group) => (
-          <Card key={group.category}>
-            <Field label="Category" value={group.category} />
-            <Field label="Skills" value={group.items.join(", ")} />
-          </Card>
-        ))}
+        <Field
+          label="Skills"
+          value={skills.map((s) => s.name).join(", ")}
+          multiline
+        />
       </Section>
 
       <Section title="Projects">
-        {projects.map((project) => (
-          <Card key={project.name}>
-            <Field label="Name" value={project.name} />
-            <Field label="Link" value={project.link} />
+        {projects.map((project, i) => (
+          <Card key={i}>
+            <Field label="Name" value={project.name ?? ""} />
+            <Field label="Link" value={project.url ?? ""} />
+            <Field
+              label="Description"
+              value={project.description ?? ""}
+              multiline
+            />
           </Card>
         ))}
       </Section>

@@ -1,8 +1,9 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import BottomSheet from "@gorhom/bottom-sheet";
-import { Stack } from "expo-router";
+import { Stack, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
+  ActivityIndicator,
   Alert,
   Pressable,
   Text,
@@ -12,14 +13,19 @@ import {
 } from "react-native";
 import { ResumableZoom } from "react-native-zoom-toolkit";
 
-import EditPanel from "@/components/resume/edit-panel";
-import ResumeChat from "@/components/resume/resume-chat";
-import ResumePage, { PAGE_WIDTH } from "@/components/resume/resume-page";
+import EditPanel from "@/features/resumes/components/edit-panel";
+import ResumeChat from "@/features/resumes/components/resume-chat";
+import ResumePage, {
+  PAGE_WIDTH,
+} from "@/features/resumes/components/resume-page";
+import { useResume } from "@/features/resumes/queries";
 
 const TABS = ["Chat", "Edit", "Design"] as const;
 type Tab = (typeof TABS)[number];
 
 export default function ResumeDetailScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
+  const { data: resume, error, isLoading } = useResume(id);
   const [tab, setTab] = useState<Tab>("Chat");
   const dark = useColorScheme() === "dark";
   const { width, height } = useWindowDimensions();
@@ -30,10 +36,19 @@ export default function ResumeDetailScreen() {
       { text: "Download" },
     ]);
 
+  if (isLoading) return <ActivityIndicator className="flex-1" />;
+  if (error || !resume)
+    return (
+      <Text className="flex-1 p-6 text-center text-[#8E8E93]">
+        {error?.message}
+      </Text>
+    );
+
   return (
     <>
       <Stack.Screen
         options={{
+          title: resume.resumeName,
           headerRight: () => (
             <Pressable onPress={onDownload} hitSlop={8}>
               <Ionicons
@@ -55,7 +70,7 @@ export default function ResumeDetailScreen() {
           backgroundColor: dark ? "#000000" : "#F2F2F7",
         }}
       >
-        <ResumePage />
+        <ResumePage content={resume.content} />
       </ResumableZoom>
 
       <BottomSheet
@@ -84,7 +99,7 @@ export default function ResumeDetailScreen() {
         </View>
 
         {tab === "Chat" && <ResumeChat />}
-        {tab === "Edit" && <EditPanel />}
+        {tab === "Edit" && <EditPanel content={resume.content} />}
       </BottomSheet>
     </>
   );
