@@ -18,7 +18,7 @@ import ResumeChat from "@/features/resumes/components/resume-chat";
 import ResumePage, {
   PAGE_WIDTH,
 } from "@/features/resumes/components/resume-page";
-import { useResume } from "@/features/resumes/queries";
+import { useResume } from "@/features/resumes/queries/get-resume";
 
 const TABS = ["Chat", "Edit", "Design"] as const;
 type Tab = (typeof TABS)[number];
