@@ -1,21 +1,35 @@
 import { useState, type ReactNode } from "react";
 import { Text, useWindowDimensions, View } from "react-native";
 
-import type { ResumeContent } from "../types";
+import type { ResumeContent, ResumeLayout } from "../types";
 
 // A4 width in px. The page is drawn at this size, then shrunk to fit the screen like a document.
 export const PAGE_WIDTH = 794;
 const PAGE_HEIGHT = 1123;
 
-// Draws the resume like a document page. Every field can be missing, so empty sections are hidden.
-export default function ResumePage({ content }: { content: ResumeContent }) {
-  const {
-    basics = {},
-    experiences = [],
-    education = [],
-    skills = [],
-    projects = [],
-  } = content;
+// Used only if a resume has no saved layout (same as the server's default).
+const DEFAULT_SECTIONS = [
+  { key: "basics", label: "Summary", visible: true },
+  { key: "experiences", label: "Experience", visible: true },
+  { key: "education", label: "Education", visible: true },
+  { key: "skills", label: "Skills", visible: true },
+  { key: "projects", label: "Projects", visible: true },
+];
+
+// Draws the resume like a document page. Sections follow the saved order and visibility;
+// every field can be missing, so empty sections are hidden.
+export default function ResumePage({
+  content,
+  layout,
+}: {
+  content: ResumeContent;
+  layout?: ResumeLayout;
+}) {
+  const { basics = {} } = content;
+  const sections = (layout?.resumeSections ?? DEFAULT_SECTIONS).filter(
+    (s) => s.visible,
+  );
+  // console.log("sections", sections);
   const { width } = useWindowDimensions();
   const [height, setHeight] = useState(PAGE_HEIGHT);
   const scale = (width - 32) / PAGE_WIDTH;
@@ -23,7 +37,6 @@ export default function ResumePage({ content }: { content: ResumeContent }) {
   const contact = [basics.email, basics.phone, basics.location]
     .filter(Boolean)
     .join(" | ");
-  const skillGroups = groupSkills(skills);
 
   return (
     <View style={{ width: PAGE_WIDTH * scale, height: height * scale }}>
@@ -53,89 +66,156 @@ export default function ResumePage({ content }: { content: ResumeContent }) {
           )}
         </View>
 
-        {!!basics.summary && (
-          <Section title="Summary">
-            <Text className="text-sm text-black">{basics.summary}</Text>
-          </Section>
-        )}
-
-        {experiences.length > 0 && (
-          <Section title="Experience">
-            {experiences.map((job, i) => (
-              <View key={i}>
-                <Text className="text-sm font-semibold text-black">
-                  {[job.role, job.company].filter(Boolean).join(" · ")}
-                </Text>
-                {!!job.dates && (
-                  <Text className="text-xs italic text-[#4A4A4A]">
-                    {job.dates}
-                  </Text>
-                )}
-                {job.highlights?.map((h, j) => (
-                  <Text key={j} className="text-sm text-black">
-                    • {h}
-                  </Text>
-                ))}
-              </View>
-            ))}
-          </Section>
-        )}
-
-        {education.length > 0 && (
-          <Section title="Education">
-            {education.map((item, i) => (
-              <View key={i}>
-                <Text className="text-sm font-semibold text-black">
-                  {item.institution}
-                </Text>
-                <Text className="text-xs italic text-[#4A4A4A]">
-                  {[item.degree, item.field].filter(Boolean).join(", ")}
-                </Text>
-                {!!item.dates && (
-                  <Text className="text-xs italic text-[#4A4A4A]">
-                    {item.dates}
-                  </Text>
-                )}
-              </View>
-            ))}
-          </Section>
-        )}
-
-        {skills.length > 0 && (
-          <Section title="Skills">
-            {Object.entries(skillGroups).map(([category, names]) => (
-              <Text key={category} className="text-sm text-black">
-                <Text className="font-semibold">{category}: </Text>
-                {names.join(", ")}
-              </Text>
-            ))}
-          </Section>
-        )}
-
-        {projects.length > 0 && (
-          <Section title="Projects">
-            {projects.map((project, i) => (
-              <View key={i}>
-                <Text className="text-sm font-semibold text-black">
-                  {project.name}
-                </Text>
-                {!!project.url && (
-                  <Text className="text-xs italic text-[#4A4A4A]">
-                    {project.url}
-                  </Text>
-                )}
-                {!!project.description && (
-                  <Text className="text-sm text-black">
-                    {project.description}
-                  </Text>
-                )}
-              </View>
-            ))}
-          </Section>
-        )}
+        {sections.map((section) => {
+          const body = renderSection(section.key, content, layout?.skillsLayout);
+          return body ? (
+            <Section key={section.key} title={section.label}>
+              {body}
+            </Section>
+          ) : null;
+        })}
       </View>
     </View>
   );
+}
+
+/** What goes inside each section. Returns null when there's nothing to show. */
+function renderSection(
+  key: string,
+  content: ResumeContent,
+  skillsLayout = "categorized",
+): ReactNode {
+  const {
+    basics = {},
+    experiences = [],
+    education = [],
+    skills = [],
+    projects = [],
+    certifications = [],
+    references = [],
+    customSections = [],
+  } = content;
+
+  switch (key) {
+    // The server calls the Summary section "basics".
+    case "basics":
+      return basics.summary ? (
+        <Text className="text-sm text-black">{basics.summary}</Text>
+      ) : null;
+
+    case "experiences":
+      return experiences.length
+        ? experiences.map((job, i) => (
+            <View key={i}>
+              <Text className="text-sm font-semibold text-black">
+                {[job.role, job.company].filter(Boolean).join(" · ")}
+              </Text>
+              {!!job.dates && (
+                <Text className="text-xs italic text-[#4A4A4A]">
+                  {job.dates}
+                </Text>
+              )}
+              {job.highlights?.map((h, j) => (
+                <Text key={j} className="text-sm text-black">
+                  • {h}
+                </Text>
+              ))}
+            </View>
+          ))
+        : null;
+
+    case "education":
+      return education.length
+        ? education.map((item, i) => (
+            <View key={i}>
+              <Text className="text-sm font-semibold text-black">
+                {item.institution}
+              </Text>
+              <Text className="text-xs italic text-[#4A4A4A]">
+                {[item.degree, item.field].filter(Boolean).join(", ")}
+              </Text>
+              {!!item.dates && (
+                <Text className="text-xs italic text-[#4A4A4A]">
+                  {item.dates}
+                </Text>
+              )}
+            </View>
+          ))
+        : null;
+
+    case "skills":
+      if (!skills.length) return null;
+      if (skillsLayout === "list")
+        return (
+          <Text className="text-sm text-black">
+            {skills.map((s) => s.name).join(", ")}
+          </Text>
+        );
+      return Object.entries(groupSkills(skills)).map(([category, names]) => (
+        <Text key={category} className="text-sm text-black">
+          <Text className="font-semibold">{category}: </Text>
+          {names.join(", ")}
+        </Text>
+      ));
+
+    case "projects":
+      return projects.length
+        ? projects.map((project, i) => (
+            <View key={i}>
+              <Text className="text-sm font-semibold text-black">
+                {project.name}
+              </Text>
+              {!!project.url && (
+                <Text className="text-xs italic text-[#4A4A4A]">
+                  {project.url}
+                </Text>
+              )}
+              {!!project.description && (
+                <Text className="text-sm text-black">
+                  {project.description}
+                </Text>
+              )}
+            </View>
+          ))
+        : null;
+
+    case "certifications":
+      return certifications.length
+        ? certifications.map((c, i) => (
+            <View key={i}>
+              <Text className="text-sm font-semibold text-black">{c.name}</Text>
+              <Text className="text-xs italic text-[#4A4A4A]">
+                {[c.issuer, c.date].filter(Boolean).join(" · ")}
+              </Text>
+            </View>
+          ))
+        : null;
+
+    case "references":
+      return references.length
+        ? references.map((r, i) => (
+            <View key={i}>
+              <Text className="text-sm font-semibold text-black">{r.name}</Text>
+              <Text className="text-xs italic text-[#4A4A4A]">
+                {[r.relationship, r.email, r.phone].filter(Boolean).join(" · ")}
+              </Text>
+            </View>
+          ))
+        : null;
+
+    default: {
+      // Custom sections are saved as "custom-0", "custom-1", ... → customSections[index]
+      const index = key.startsWith("custom-") ? Number(key.slice(7)) : -1;
+      const custom = customSections[index];
+      return custom?.highlights.length
+        ? custom.highlights.map((h, i) => (
+            <Text key={i} className="text-sm text-black">
+              • {h}
+            </Text>
+          ))
+        : null;
+    }
+  }
 }
 
 // The server sends skills flat: [{ name, category }]. Group them as { "Mobile": ["React Native", ...] }.

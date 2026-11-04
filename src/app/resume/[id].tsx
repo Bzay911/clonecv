@@ -26,6 +26,7 @@ type Tab = (typeof TABS)[number];
 export default function ResumeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: resume, error, isLoading } = useResume(id);
+  // console.log("resume", resume);
   const [tab, setTab] = useState<Tab>("Chat");
   const dark = useColorScheme() === "dark";
   const { width, height } = useWindowDimensions();
@@ -70,7 +71,7 @@ export default function ResumeDetailScreen() {
           backgroundColor: dark ? "#000000" : "#F2F2F7",
         }}
       >
-        <ResumePage content={resume.content} />
+        <ResumePage content={resume.content} layout={resume.designLayout} />
       </ResumableZoom>
 
       <BottomSheet
@@ -98,7 +99,7 @@ export default function ResumeDetailScreen() {
           </View>
         </View>
 
-        {tab === "Chat" && <ResumeChat />}
+        {tab === "Chat" && <ResumeChat messages={resume.messages} />}
         {tab === "Edit" && <EditPanel content={resume.content} />}
       </BottomSheet>
     </>

@@ -22,6 +22,8 @@ export default function ResumesScreen() {
     refetch,
     isRefetching,
   } = useResumes();
+
+  // console.log("resumes", resumes);
   const [showInput, setShowInput] = useState(false);
   const [name, setName] = useState("");
   const insets = useSafeAreaInsets();
