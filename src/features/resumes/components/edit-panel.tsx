@@ -3,12 +3,25 @@ import {
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
 import type { ReactNode } from "react";
-import { Text, useColorScheme, View } from "react-native";
+import { Pressable, Text, useColorScheme, View } from "react-native";
 
 import type { ResumeContent } from "../types";
+import type { SaveStatus } from "../use-autosave";
 
-// Fields are prefilled from the saved resume. Changes aren't saved yet.
-export default function EditPanel({ content }: { content: ResumeContent }) {
+type Basics = NonNullable<ResumeContent["basics"]>;
+
+// Personal information saves automatically. Other sections are read-only until R3b.
+export default function EditPanel({
+  content,
+  onChange,
+  saveStatus,
+  onRetry,
+}: {
+  content: ResumeContent;
+  onChange: (content: ResumeContent) => void;
+  saveStatus: SaveStatus;
+  onRetry: () => void;
+}) {
   const {
     basics = {},
     experiences = [],
@@ -16,6 +29,10 @@ export default function EditPanel({ content }: { content: ResumeContent }) {
     skills = [],
     projects = [],
   } = content;
+
+  // Change one field in basics, keeping every other field (and every other section) as it is
+  const setBasic = (key: keyof Basics) => (value: string) =>
+    onChange({ ...content, basics: { ...basics, [key]: value } });
 
   return (
     <BottomSheetScrollView
@@ -26,17 +43,41 @@ export default function EditPanel({ content }: { content: ResumeContent }) {
         paddingBottom: 60,
       }}
     >
+      <SaveIndicator status={saveStatus} onRetry={onRetry} />
+
       <Section title="Personal Information">
-        <Field label="Full name" value={basics.fullName ?? ""} />
-        <Field label="Headline" value={basics.headline ?? ""} />
-        <Field label="Email" value={basics.email ?? ""} />
-        <Field label="Phone" value={basics.phone ?? ""} />
+        <Field
+          label="Full name"
+          value={basics.fullName ?? ""}
+          onChangeText={setBasic("fullName")}
+        />
+        <Field
+          label="Headline"
+          value={basics.headline ?? ""}
+          onChangeText={setBasic("headline")}
+        />
+        <Field
+          label="Email"
+          value={basics.email ?? ""}
+          onChangeText={setBasic("email")}
+        />
+        <Field
+          label="Phone"
+          value={basics.phone ?? ""}
+          onChangeText={setBasic("phone")}
+        />
         <Field
           label="Location"
           value={basics.location ?? ""}
+          onChangeText={setBasic("location")}
           placeholder="Melbourne, VIC"
         />
-        <Field label="Summary" value={basics.summary ?? ""} multiline />
+        <Field
+          label="Summary"
+          value={basics.summary ?? ""}
+          onChangeText={setBasic("summary")}
+          multiline
+        />
       </Section>
 
       <Section title="Experience">
@@ -98,6 +139,31 @@ export default function EditPanel({ content }: { content: ResumeContent }) {
   );
 }
 
+function SaveIndicator({
+  status,
+  onRetry,
+}: {
+  status: SaveStatus;
+  onRetry: () => void;
+}) {
+  if (status === "idle") return null;
+  if (status === "error")
+    return (
+      <Pressable onPress={onRetry} hitSlop={8} className="self-end">
+        <Text className="text-xs text-rose-ink dark:text-rose-ink-dark">
+          Couldn&apos;t save · Retry
+        </Text>
+      </Pressable>
+    );
+  return (
+    <View className="flex-row items-center gap-1 self-end">
+      <Text className="text-xs text-[#8E8E93]">
+        {status === "saving" ? "Saving…" : "Saved"}
+      </Text>
+    </View>
+  );
+}
+
 function Section({ title, children }: { title: string; children: ReactNode }) {
   return (
     <View className="gap-3">
@@ -117,24 +183,30 @@ function Card({ children }: { children: ReactNode }) {
   );
 }
 
+// Controlled input: shows `value` and reports changes. Without onChangeText it's read-only and dimmed.
 function Field({
   label,
   value,
+  onChangeText,
   placeholder,
   multiline,
 }: {
   label: string;
   value: string;
+  onChangeText?: (value: string) => void;
   placeholder?: string;
   multiline?: boolean;
 }) {
   const dark = useColorScheme() === "dark";
+  const editable = !!onChangeText;
 
   return (
     <View className="gap-1.5">
       <Text className="text-xs text-[#8E8E93]">{label}</Text>
       <BottomSheetTextInput
-        defaultValue={value}
+        value={value}
+        onChangeText={onChangeText}
+        editable={editable}
         placeholder={placeholder}
         placeholderTextColor="#8E8E93"
         multiline={multiline}
@@ -147,6 +219,7 @@ function Field({
           fontSize: 15,
           backgroundColor: dark ? "#2C2C2E" : "#F2F2F7",
           color: dark ? "#FFFFFF" : "#000000",
+          opacity: editable ? 1 : 0.6,
         }}
       />
     </View>

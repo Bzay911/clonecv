@@ -19,6 +19,8 @@ import ResumePage, {
   PAGE_WIDTH,
 } from "@/features/resumes/components/resume-page";
 import { useResume } from "@/features/resumes/queries/get-resume";
+import type { ResumeContent } from "@/features/resumes/types";
+import { useAutosave } from "@/features/resumes/use-autosave";
 
 const TABS = ["Chat", "Edit", "Design"] as const;
 type Tab = (typeof TABS)[number];
@@ -26,10 +28,15 @@ type Tab = (typeof TABS)[number];
 export default function ResumeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: resume, error, isLoading } = useResume(id);
-  // console.log("resume", resume);
   const [tab, setTab] = useState<Tab>("Chat");
   const dark = useColorScheme() === "dark";
   const { width, height } = useWindowDimensions();
+
+  // Your edits. null = nothing edited yet, so the draft is just the server's content
+  const [edits, setEdits] = useState<ResumeContent | null>(null);
+  const draft = edits ?? resume?.content ?? null;
+
+  const autosave = useAutosave(id, draft);
 
   const onDownload = () =>
     Alert.alert("Download resume?", undefined, [
@@ -71,7 +78,10 @@ export default function ResumeDetailScreen() {
           backgroundColor: dark ? "#000000" : "#F2F2F7",
         }}
       >
-        <ResumePage content={resume.content} layout={resume.designLayout} />
+        <ResumePage
+          content={draft ?? resume.content}
+          layout={resume.designLayout}
+        />
       </ResumableZoom>
 
       <BottomSheet
@@ -100,7 +110,14 @@ export default function ResumeDetailScreen() {
         </View>
 
         {tab === "Chat" && <ResumeChat messages={resume.messages} />}
-        {tab === "Edit" && <EditPanel content={resume.content} />}
+        {tab === "Edit" && draft && (
+          <EditPanel
+            content={draft}
+            onChange={setEdits}
+            saveStatus={autosave.status}
+            onRetry={autosave.retry}
+          />
+        )}
       </BottomSheet>
     </>
   );
