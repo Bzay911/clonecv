@@ -1,12 +1,12 @@
-import { useQuery } from '@tanstack/react-query';
+import { useQuery } from "@tanstack/react-query";
 
-import { api } from '@/lib/api';
-import type { Resume } from '../types';
-import { resumeKeys } from './keys';
+import { api } from "@/lib/api";
+import type { Resume } from "../types";
+import { resumeKeys } from "./keys";
 
 // GET /api/v1/resumes
 export function getResumes() {
-  return api<Resume[]>('/resumes');
+  return api<Resume[]>("/resumes");
 }
 
 export function useResumes() {

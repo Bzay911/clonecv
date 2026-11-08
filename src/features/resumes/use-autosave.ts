@@ -1,11 +1,14 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef } from "react";
 
-import { saveResumeContent, useSaveResumeContent } from './queries/save-resume-content';
-import type { ResumeContent } from './types';
+import {
+  saveResumeContent,
+  useSaveResumeContent,
+} from "./queries/save-resume-content";
+import type { ResumeContent } from "./types";
 
 const DELAY_MS = 800;
 
-export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
+export type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 /** Saves `content` 0.8s after it stops changing. Returns the save status for the UI. */
 export function useAutosave(id: string, content: ResumeContent | null) {
@@ -41,12 +44,12 @@ export function useAutosave(id: string, content: ResumeContent | null) {
   );
 
   const status: SaveStatus = save.isPending
-    ? 'saving'
+    ? "saving"
     : save.isError
-      ? 'error'
+      ? "error"
       : save.isSuccess
-        ? 'saved'
-        : 'idle';
+        ? "saved"
+        : "idle";
 
   const retry = () => {
     if (content) save.mutate({ id, content });

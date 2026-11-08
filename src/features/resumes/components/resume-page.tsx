@@ -67,7 +67,11 @@ export default function ResumePage({
         </View>
 
         {sections.map((section) => {
-          const body = renderSection(section.key, content, layout?.skillsLayout);
+          const body = renderSection(
+            section.key,
+            content,
+            layout?.skillsLayout,
+          );
           return body ? (
             <Section key={section.key} title={section.label}>
               {body}

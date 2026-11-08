@@ -13,7 +13,7 @@ import {
 } from "react-native";
 import { ResumableZoom } from "react-native-zoom-toolkit";
 
-import EditPanel from "@/features/resumes/components/edit-panel";
+import EditPanel from "@/features/resumes/components/edit/edit-panel";
 import ResumeChat from "@/features/resumes/components/resume-chat";
 import ResumePage, {
   PAGE_WIDTH,

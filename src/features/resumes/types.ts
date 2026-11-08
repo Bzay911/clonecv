@@ -4,29 +4,73 @@ export type Resume = {
   updatedAt: string;
 };
 
-/** Matches the server's lib/schemas/resume.ts, trimmed to the fields the app uses. Every field can be missing. */
+// ---- Resume content: one type per section (matches the server's lib/schemas/resume.ts). Every field can be missing. ----
+
+export type Basics = {
+  fullName?: string;
+  headline?: string;
+  email?: string;
+  phone?: string;
+  location?: string;
+  summary?: string;
+};
+
+export type Experience = {
+  role?: string;
+  company?: string;
+  location?: string;
+  dates?: string;
+  highlights?: string[];
+};
+
+export type Education = {
+  institution?: string;
+  degree?: string;
+  field?: string;
+  dates?: string;
+};
+
+export type Skill = {
+  name: string;
+  category?: string;
+};
+
+export type Project = {
+  name?: string;
+  url?: string;
+  description?: string;
+};
+
+export type Certification = {
+  name?: string;
+  issuer?: string;
+  date?: string;
+  url?: string;
+};
+
+export type Reference = {
+  name?: string;
+  relationship?: string;
+  email?: string;
+  phone?: string;
+  description?: string;
+};
+
+export type CustomSection = {
+  id: string;
+  title: string;
+  highlights: string[];
+};
+
 export type ResumeContent = {
-  basics?: {
-    fullName?: string;
-    headline?: string;
-    email?: string;
-    phone?: string;
-    location?: string;
-    summary?: string;
-  };
-  experiences?: { role?: string; company?: string; location?: string; dates?: string; highlights?: string[] }[];
-  education?: { institution?: string; degree?: string; field?: string; dates?: string }[];
-  skills?: { name: string; category?: string }[];
-  projects?: { name?: string; url?: string; description?: string }[];
-  certifications?: { name?: string; issuer?: string; date?: string; url?: string }[];
-  references?: {
-    name?: string;
-    relationship?: string;
-    email?: string;
-    phone?: string;
-    description?: string;
-  }[];
-  customSections?: { id: string; title: string; highlights: string[] }[];
+  basics?: Basics;
+  experiences?: Experience[];
+  education?: Education[];
+  skills?: Skill[];
+  projects?: Project[];
+  certifications?: Certification[];
+  references?: Reference[];
+  customSections?: CustomSection[];
 };
 
 /** Matches the server's resumeLayoutDesignSchema. Array order of resumeSections = order on the page. */
