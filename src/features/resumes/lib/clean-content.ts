@@ -1,4 +1,4 @@
-import type { ResumeContent } from "./types";
+import type { ResumeContent } from "../types/types";
 
 /**
  * Tidies the content just before it's saved. Your draft on screen isn't changed.

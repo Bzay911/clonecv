@@ -1,14 +1,14 @@
-import type { Experience } from "../../types";
+import type { Experience } from "../../types/types";
 import {
-  AddButton,
-  Card,
-  CardHeader,
-  confirmRemove,
-  Field,
-  fromLines,
-  Section,
-  toLines,
-  type FormProps,
+    AddButton,
+    Card,
+    CardHeader,
+    confirmRemove,
+    Field,
+    fromLines,
+    Section,
+    toLines,
+    type FormProps,
 } from "./fields";
 
 export default function ExperienceForm({ content, onChange }: FormProps) {

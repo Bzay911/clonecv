@@ -1,14 +1,14 @@
-import type { Skill } from "../../types";
+import type { Skill } from "../../types/types";
 import {
-  AddButton,
-  Card,
-  CardHeader,
-  confirmRemove,
-  Field,
-  fromLines,
-  Section,
-  toLines,
-  type FormProps,
+    AddButton,
+    Card,
+    CardHeader,
+    confirmRemove,
+    Field,
+    fromLines,
+    Section,
+    toLines,
+    type FormProps,
 } from "./fields";
 
 /** How the form shows skills: one card per category. */

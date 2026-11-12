@@ -1,12 +1,12 @@
-import type { Education } from "../../types";
+import type { Education } from "../../types/types";
 import {
-  AddButton,
-  Card,
-  CardHeader,
-  confirmRemove,
-  Field,
-  Section,
-  type FormProps,
+    AddButton,
+    Card,
+    CardHeader,
+    confirmRemove,
+    Field,
+    Section,
+    type FormProps,
 } from "./fields";
 
 export default function EducationForm({ content, onChange }: FormProps) {

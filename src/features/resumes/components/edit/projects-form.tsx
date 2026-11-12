@@ -1,12 +1,12 @@
-import type { Project } from "../../types";
+import type { Project } from "../../types/types";
 import {
-  AddButton,
-  Card,
-  CardHeader,
-  confirmRemove,
-  Field,
-  Section,
-  type FormProps,
+    AddButton,
+    Card,
+    CardHeader,
+    confirmRemove,
+    Field,
+    Section,
+    type FormProps,
 } from "./fields";
 
 export default function ProjectsForm({ content, onChange }: FormProps) {

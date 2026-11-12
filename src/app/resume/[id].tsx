@@ -13,14 +13,15 @@ import {
 } from "react-native";
 import { ResumableZoom } from "react-native-zoom-toolkit";
 
+import ResumeChat from "@/features/resumes/components/chat/resume-chat";
 import EditPanel from "@/features/resumes/components/edit/edit-panel";
-import ResumeChat from "@/features/resumes/components/resume-chat";
+import ResumeDesignLayout from "@/features/resumes/components/design/resume-design";
 import ResumePage, {
   PAGE_WIDTH,
 } from "@/features/resumes/components/resume-page";
 import { useResume } from "@/features/resumes/queries/get-resume";
-import type { ResumeContent } from "@/features/resumes/types";
-import { useAutosave } from "@/features/resumes/use-autosave";
+import type { ResumeContent } from "@/features/resumes/types/types";
+import { useAutosave } from "../../features/resumes/lib/use-autosave";
 
 const TABS = ["Chat", "Edit", "Design"] as const;
 type Tab = (typeof TABS)[number];
@@ -32,6 +33,8 @@ export default function ResumeDetailScreen() {
   const dark = useColorScheme() === "dark";
   const { width, height } = useWindowDimensions();
 
+  // console.log("ResumeDetailScreen", { id, resume, error, isLoading });
+  console.log("Design layout", resume?.designLayout);
   // Your edits. null = nothing edited yet, so the draft is just the server's content
   const [edits, setEdits] = useState<ResumeContent | null>(null);
   const draft = edits ?? resume?.content ?? null;
@@ -117,6 +120,9 @@ export default function ResumeDetailScreen() {
             saveStatus={autosave.status}
             onRetry={autosave.retry}
           />
+        )}
+        {tab === "Design" && resume?.designLayout && (
+          <ResumeDesignLayout designLayout={resume.designLayout} />
         )}
       </BottomSheet>
     </>

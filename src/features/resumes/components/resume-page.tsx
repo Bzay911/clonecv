@@ -1,7 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Text, useWindowDimensions, View } from "react-native";
 
-import type { ResumeContent, ResumeLayout } from "../types";
+import type { ResumeContent, ResumeLayout } from "../types/types";
 
 // A4 width in px. The page is drawn at this size, then shrunk to fit the screen like a document.
 export const PAGE_WIDTH = 794;

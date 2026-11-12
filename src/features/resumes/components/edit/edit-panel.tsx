@@ -1,6 +1,6 @@
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 
-import type { SaveStatus } from "../../use-autosave";
+import type { SaveStatus } from "../../lib/use-autosave";
 import BasicsForm from "./basics-form";
 import EducationForm from "./education-form";
 import ExperienceForm from "./experience-form";

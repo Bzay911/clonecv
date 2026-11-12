@@ -2,7 +2,7 @@ import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import type { ReactNode } from "react";
 import { Alert, Pressable, Text, useColorScheme, View } from "react-native";
 
-import type { ResumeContent } from "../../types";
+import type { ResumeContent } from "../../types/types";
 import type { SaveStatus } from "../../use-autosave";
 
 /** Every section form receives the whole content and sends back a new whole content. */

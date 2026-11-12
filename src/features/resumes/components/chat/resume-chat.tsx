@@ -7,7 +7,7 @@ import { useRef, type ComponentRef } from "react";
 import { Pressable, Text, useColorScheme, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import type { ChatMessage } from "../types";
+import type { ChatMessage } from "../../types/types";
 
 // "tool-updateExperience" → "Experience updated"
 function toolLabel(type: string, state?: string) {

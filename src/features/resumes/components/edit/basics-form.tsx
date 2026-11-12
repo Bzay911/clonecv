@@ -1,4 +1,4 @@
-import type { Basics } from "../../types";
+import type { Basics } from "../../types/types";
 import { Field, Section, type FormProps } from "./fields";
 
 export default function BasicsForm({ content, onChange }: FormProps) {

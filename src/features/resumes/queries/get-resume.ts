@@ -1,7 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { api } from "@/lib/api";
-import type { ResumeDetail } from "../types";
+import type { ResumeDetail } from "../types/types";
 import { resumeKeys } from "./keys";
 
 // GET /api/v1/resumes/:id

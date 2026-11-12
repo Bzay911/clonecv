@@ -2,16 +2,16 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Link, router } from "expo-router";
 import { useState } from "react";
 import {
-  ActionSheetIOS,
-  ActivityIndicator,
-  Alert,
-  FlatList,
-  Modal,
-  Platform,
-  Pressable,
-  Text,
-  TextInput,
-  View,
+    ActionSheetIOS,
+    ActivityIndicator,
+    Alert,
+    FlatList,
+    Modal,
+    Platform,
+    Pressable,
+    Text,
+    TextInput,
+    View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -20,7 +20,7 @@ import { useDeleteResume } from "@/features/resumes/queries/delete-resume";
 import { useDuplicateResume } from "@/features/resumes/queries/duplicate-resume";
 import { useResumes } from "@/features/resumes/queries/get-resumes";
 import { useRenameResume } from "@/features/resumes/queries/rename-resume";
-import type { Resume } from "@/features/resumes/types";
+import type { Resume } from "@/features/resumes/types/types";
 
 export default function ResumesScreen() {
   const {

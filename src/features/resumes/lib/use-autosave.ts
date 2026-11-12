@@ -1,10 +1,10 @@
 import { useEffect, useRef } from "react";
 
 import {
-  saveResumeContent,
-  useSaveResumeContent,
-} from "./queries/save-resume-content";
-import type { ResumeContent } from "./types";
+    saveResumeContent,
+    useSaveResumeContent,
+} from "../queries/save-resume-content";
+import type { ResumeContent } from "../../resumes/types/types";
 
 const DELAY_MS = 800;
 

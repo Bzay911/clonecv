@@ -1,8 +1,8 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 
 import { api } from "@/lib/api";
-import { cleanContent } from "../clean-content";
-import type { ResumeContent, ResumeDetail } from "../types";
+import { cleanContent } from "../lib/clean-content";
+import type { ResumeContent, ResumeDetail } from "../types/types";
 import { resumeKeys } from "./keys";
 
 // PATCH /api/v1/resumes/:id  { content }: replaces the resume's whole content
