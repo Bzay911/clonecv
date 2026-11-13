@@ -14,13 +14,24 @@ import {
 import { ResumableZoom } from "react-native-zoom-toolkit";
 
 import ResumeChat from "@/features/resumes/components/chat/resume-chat";
-import EditPanel from "@/features/resumes/components/edit/edit-panel";
 import ResumeDesignLayout from "@/features/resumes/components/design/resume-design";
+import EditPanel from "@/features/resumes/components/edit/edit-panel";
 import ResumePage, {
   PAGE_WIDTH,
 } from "@/features/resumes/components/resume-page";
 import { useResume } from "@/features/resumes/queries/get-resume";
-import type { ResumeContent } from "@/features/resumes/types/types";
+import {
+  saveDesignLayout,
+  useSaveDesignLayout,
+} from "@/features/resumes/queries/save-design-layout";
+import {
+  saveResumeContent,
+  useSaveResumeContent,
+} from "@/features/resumes/queries/save-resume-content";
+import type {
+  ResumeContent,
+  ResumeLayout,
+} from "@/features/resumes/types/types";
 import { useAutosave } from "../../features/resumes/lib/use-autosave";
 
 const TABS = ["Chat", "Edit", "Design"] as const;
@@ -33,13 +44,29 @@ export default function ResumeDetailScreen() {
   const dark = useColorScheme() === "dark";
   const { width, height } = useWindowDimensions();
 
-  // console.log("ResumeDetailScreen", { id, resume, error, isLoading });
-  console.log("Design layout", resume?.designLayout);
-  // Your edits. null = nothing edited yet, so the draft is just the server's content
+  // Content edits. null = nothing edited yet, so the draft is just the server's content
   const [edits, setEdits] = useState<ResumeContent | null>(null);
   const draft = edits ?? resume?.content ?? null;
 
-  const autosave = useAutosave(id, draft);
+  const saveContent = useSaveResumeContent();
+  const autosave = useAutosave<ResumeContent>({
+    value: draft,
+    flush: (content) => saveResumeContent({ id, content }),
+    mutate: (content) => saveContent.mutate({ id, content }),
+    state: saveContent,
+  });
+
+  // Design edits. Same idea: null = nothing changed yet
+  const [layoutEdits, setLayoutEdits] = useState<ResumeLayout | null>(null);
+  const layoutDraft = layoutEdits ?? resume?.designLayout ?? null;
+
+  const saveLayout = useSaveDesignLayout();
+  const layoutAutosave = useAutosave<ResumeLayout>({
+    value: layoutDraft,
+    flush: (designLayout) => saveDesignLayout({ id, designLayout }),
+    mutate: (designLayout) => saveLayout.mutate({ id, designLayout }),
+    state: saveLayout,
+  });
 
   const onDownload = () =>
     Alert.alert("Download resume?", undefined, [
@@ -83,7 +110,7 @@ export default function ResumeDetailScreen() {
       >
         <ResumePage
           content={draft ?? resume.content}
-          layout={resume.designLayout}
+          layout={layoutDraft ?? resume.designLayout}
         />
       </ResumableZoom>
 
@@ -121,8 +148,13 @@ export default function ResumeDetailScreen() {
             onRetry={autosave.retry}
           />
         )}
-        {tab === "Design" && resume?.designLayout && (
-          <ResumeDesignLayout designLayout={resume.designLayout} />
+        {tab === "Design" && layoutDraft && (
+          <ResumeDesignLayout
+            designLayout={layoutDraft}
+            onChange={setLayoutEdits}
+            saveStatus={layoutAutosave.status}
+            onRetry={layoutAutosave.retry}
+          />
         )}
       </BottomSheet>
     </>

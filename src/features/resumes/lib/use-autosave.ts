@@ -1,58 +1,60 @@
 import { useEffect, useRef } from "react";
 
-import {
-    saveResumeContent,
-    useSaveResumeContent,
-} from "../queries/save-resume-content";
-import type { ResumeContent } from "../../resumes/types/types";
-
 const DELAY_MS = 800;
 
 export type SaveStatus = "idle" | "saving" | "saved" | "error";
 
-/** Saves `content` 0.8s after it stops changing. Returns the save status for the UI. */
-export function useAutosave(id: string, content: ResumeContent | null) {
-  const save = useSaveResumeContent();
+type Options<T> = {
+  value: T | null;
+  /** Plain save, used to flush when leaving the screen */
+  flush: (value: T) => Promise<unknown>;
+  /** The mutation used for normal autosaves */
+  mutate: (value: T) => void;
+  state: { isPending: boolean; isError: boolean; isSuccess: boolean };
+};
+
+/** Saves `value` 0.8s after it stops changing. Returns the save status for the UI. */
+export function useAutosave<T>({ value, flush, mutate, state }: Options<T>) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const unsaved = useRef<ResumeContent | null>(null);
+  const unsaved = useRef<T | null>(null);
   const isFirst = useRef(true);
 
   useEffect(() => {
-    if (!content) return;
+    if (!value) return;
     // The first value is what we loaded from the server, so there's nothing to save
     if (isFirst.current) {
       isFirst.current = false;
       return;
     }
-    unsaved.current = content;
-    if (timer.current) clearTimeout(timer.current); // typing again restarts the countdown
+    unsaved.current = value;
+    if (timer.current) clearTimeout(timer.current); // changing again restarts the countdown
     timer.current = setTimeout(() => {
       unsaved.current = null;
-      save.mutate({ id, content });
+      mutate(value);
     }, DELAY_MS);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [content]);
+  }, [value]);
 
   // Leaving the screen: save anything still waiting
   useEffect(
     () => () => {
       if (timer.current) clearTimeout(timer.current);
-      if (unsaved.current) saveResumeContent({ id, content: unsaved.current });
+      if (unsaved.current) flush(unsaved.current);
     },
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [],
   );
 
-  const status: SaveStatus = save.isPending
+  const status: SaveStatus = state.isPending
     ? "saving"
-    : save.isError
+    : state.isError
       ? "error"
-      : save.isSuccess
+      : state.isSuccess
         ? "saved"
         : "idle";
 
   const retry = () => {
-    if (content) save.mutate({ id, content });
+    if (value) mutate(value);
   };
 
   return { status, retry };
