@@ -3,11 +3,8 @@ import {
   BottomSheetScrollView,
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
-import { useState } from "react";
 import {
   Image,
-  Modal,
-  Platform,
   Pressable,
   Text,
   useColorScheme,
@@ -15,15 +12,12 @@ import {
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SaveIndicator from "../../lib/save-indicator";
+import FontPicker from "./font-picker";
 
 import type { SaveStatus } from "../../lib/use-autosave";
 import type { ResumeLayout } from "../../types/types";
-import { FONT_FAMILIES, FONT_SIZES, SPACING } from "./design-constants";
+import { FONT_SIZES, SPACING } from "./design-constants";
 import { TEMPLATES, TEMPLATE_THUMNAILS } from "./template-thumbnails";
-
-// iOS has these built in. Calibri and Android show the system font in the picker.
-const previewFont = (f: string) =>
-  Platform.OS === "ios" && f !== "Calibri" ? { fontFamily: f } : undefined;
 
 function Heading({ children }: { children: string }) {
   return (
@@ -79,7 +73,6 @@ export default function ResumeDesignLayout({
 }: Props) {
   const dark = useColorScheme() === "dark";
   const insets = useSafeAreaInsets();
-  const [fontOpen, setFontOpen] = useState(false);
 
   const {
     template,
@@ -163,22 +156,11 @@ export default function ResumeDesignLayout({
         </View>
       </View>
 
-      {/* Font */}
-      <View>
-        <Heading>Font</Heading>
-        <Pressable
-          onPress={() => setFontOpen(true)}
-          className="h-10 flex-row items-center justify-between rounded-lg bg-[#F2F2F7] px-3.5 dark:bg-[#2C2C2E]"
-        >
-          <Text
-            className="text-[15px] text-black dark:text-white"
-            style={previewFont(fontFamily)}
-          >
-            {fontFamily}
-          </Text>
-          <Ionicons name="chevron-down" size={16} color="#8E8E93" />
-        </Pressable>
-      </View>
+{/* Font */}
+<View>
+  <Heading>Font</Heading>
+  <FontPicker value={fontFamily} onChange={(f) => set("fontFamily", f)} />
+</View>
 
       {/* Size */}
       <View>
@@ -317,41 +299,6 @@ export default function ResumeDesignLayout({
         </View>
       </View>
 
-      {/* Font picker */}
-      <Modal
-        transparent
-        animationType="fade"
-        visible={fontOpen}
-        onRequestClose={() => setFontOpen(false)}
-      >
-        <Pressable
-          onPress={() => setFontOpen(false)}
-          className="flex-1 justify-center bg-black/40 px-8"
-        >
-          <View className="overflow-hidden rounded-xl bg-white dark:bg-[#2C2C2E]">
-            {FONT_FAMILIES.map((f) => (
-              <Pressable
-                key={f}
-                onPress={() => {
-                  set("fontFamily", f);
-                  setFontOpen(false);
-                }}
-                className="flex-row items-center justify-between px-4 py-3.5"
-              >
-                <Text
-                  className="text-[15px] text-black dark:text-white"
-                  style={previewFont(f)}
-                >
-                  {f}
-                </Text>
-                {fontFamily === f && (
-                  <Ionicons name="checkmark" size={18} color="#0A84FF" />
-                )}
-              </Pressable>
-            ))}
-          </View>
-        </Pressable>
-      </Modal>
     </BottomSheetScrollView>
   );
 }
