@@ -4,9 +4,10 @@ import type { SaveStatus } from "../../lib/use-autosave";
 import BasicsForm from "./basics-form";
 import EducationForm from "./education-form";
 import ExperienceForm from "./experience-form";
-import { SaveIndicator, type FormProps } from "./fields";
+import {type FormProps } from "./fields";
 import ProjectsForm from "./projects-form";
 import SkillsForm from "./skills-form";
+import SaveIndicator from "../../lib/save-indicator";
 
 type EditPanelProps = FormProps & {
   saveStatus: SaveStatus;

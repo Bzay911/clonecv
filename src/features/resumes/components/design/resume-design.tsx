@@ -14,6 +14,7 @@ import {
   View,
 } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import SaveIndicator from "../../lib/save-indicator";
 
 import type { SaveStatus } from "../../lib/use-autosave";
 import type { ResumeLayout } from "../../types/types";
@@ -116,28 +117,7 @@ export default function ResumeDesignLayout({
       }}
     >
       {/* Save status */}
-      {saveStatus !== "idle" && (
-        <View className="flex-row items-center gap-2">
-          <Text
-            className={`text-xs ${
-              saveStatus === "error"
-                ? "text-rose-ink dark:text-rose-ink-dark"
-                : "text-[#8E8E93]"
-            }`}
-          >
-            {saveStatus === "saving" && "Saving…"}
-            {saveStatus === "saved" && "Saved"}
-            {saveStatus === "error" && "Couldn't save your changes."}
-          </Text>
-          {saveStatus === "error" && (
-            <Pressable onPress={onRetry} hitSlop={8}>
-              <Text className="text-xs font-semibold text-sky dark:text-sky-dark">
-                Retry
-              </Text>
-            </Pressable>
-          )}
-        </View>
-      )}
+   <SaveIndicator status={saveStatus} onRetry={onRetry} />
 
       {/* Template */}
       <View>

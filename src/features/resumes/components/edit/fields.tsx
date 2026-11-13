@@ -1,9 +1,7 @@
 import { BottomSheetTextInput } from "@gorhom/bottom-sheet";
 import type { ReactNode } from "react";
 import { Alert, Pressable, Text, useColorScheme, View } from "react-native";
-
 import type { ResumeContent } from "../../types/types";
-import type { SaveStatus } from "../../use-autosave";
 
 /** Every section form receives the whole content and sends back a new whole content. */
 export type FormProps = {
@@ -132,31 +130,6 @@ export function Field({
           opacity: editable ? 1 : 0.6,
         }}
       />
-    </View>
-  );
-}
-
-export function SaveIndicator({
-  status,
-  onRetry,
-}: {
-  status: SaveStatus;
-  onRetry: () => void;
-}) {
-  if (status === "idle") return null;
-  if (status === "error")
-    return (
-      <Pressable onPress={onRetry} hitSlop={8} className="self-end">
-        <Text className="text-xs text-rose-ink dark:text-rose-ink-dark">
-          Couldn&apos;t save · Retry
-        </Text>
-      </Pressable>
-    );
-  return (
-    <View className="flex-row items-center gap-1 self-end">
-      <Text className="text-xs text-[#8E8E93]">
-        {status === "saving" ? "Saving…" : "Saved"}
-      </Text>
     </View>
   );
 }
