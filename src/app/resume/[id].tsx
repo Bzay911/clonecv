@@ -12,6 +12,7 @@ import {
   View,
 } from "react-native";
 import { ResumableZoom } from "react-native-zoom-toolkit";
+import { useQueryClient } from "@tanstack/react-query";
 
 import ResumeChat from "@/features/resumes/components/chat/resume-chat";
 import ResumeDesignLayout from "@/features/resumes/components/design/resume-design";
@@ -23,6 +24,7 @@ import { useResume } from "@/features/resumes/queries/get-resume";
 import {
   saveDesignLayout,
   useSaveDesignLayout,
+  applyLayoutToCache,
 } from "@/features/resumes/queries/save-design-layout";
 import {
   saveResumeContent,
@@ -40,6 +42,7 @@ type Tab = (typeof TABS)[number];
 export default function ResumeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: resume, error, isLoading } = useResume(id);
+  const queryClient = useQueryClient();
   const [tab, setTab] = useState<Tab>("Chat");
   const dark = useColorScheme() === "dark";
   const { width, height } = useWindowDimensions();
@@ -63,7 +66,10 @@ export default function ResumeDetailScreen() {
   const saveLayout = useSaveDesignLayout();
   const layoutAutosave = useAutosave<ResumeLayout>({
     value: layoutDraft,
-    flush: (designLayout) => saveDesignLayout({ id, designLayout }),
+    flush: (designLayout) =>
+      saveDesignLayout({ id, designLayout }).then(() =>
+        applyLayoutToCache(queryClient, id, designLayout),
+      ),
     mutate: (designLayout) => saveLayout.mutate({ id, designLayout }),
     state: saveLayout,
   });

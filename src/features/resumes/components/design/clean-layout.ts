@@ -11,11 +11,10 @@ const DEFAULT_LABELS: Record<string, string> = {
   references: "References",
 };
 
-/**
- * Tidies the layout just before it's saved. Your draft on screen isn't changed.
- * - trims section titles; a blank one falls back to the default heading
- * - never touches `key`
- */
+export const defaultSectionLabel = (key: string) =>
+  DEFAULT_LABELS[key] ?? "Untitled section";
+
+
 export function cleanLayout(layout: ResumeLayout): ResumeLayout {
   return {
     ...layout,

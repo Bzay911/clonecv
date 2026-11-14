@@ -1,5 +1,6 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, Text, useColorScheme, View } from "react-native";
+import { useState, useEffect } from "react";
 
 import type { SaveStatus } from "./use-autosave";
 
@@ -11,8 +12,18 @@ export default function SaveIndicator({
   onRetry: () => void;
 }) {
   const dark = useColorScheme() === "dark";
+  const [hidden, setHidden] = useState(false);
 
-  if (status === "idle") return null;
+ useEffect(() => {
+  if (status !== "saved") return;
+  const t = setTimeout(() => setHidden(true), 2000);
+  return () => {
+    clearTimeout(t);
+    setHidden(false); // reset for the next save
+  };
+}, [status]);
+
+if (status === "idle" || (status === "saved" && hidden)) return null;
 
   if (status === "error")
     return (

@@ -3,13 +3,7 @@ import {
   BottomSheetScrollView,
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
-import {
-  Image,
-  Pressable,
-  Text,
-  useColorScheme,
-  View,
-} from "react-native";
+import { Image, Pressable, Text, useColorScheme, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import SaveIndicator from "../../lib/save-indicator";
 import FontPicker from "./font-picker";
@@ -17,6 +11,7 @@ import FontPicker from "./font-picker";
 import type { SaveStatus } from "../../lib/use-autosave";
 import type { ResumeLayout } from "../../types/types";
 import { FONT_SIZES, SPACING } from "./design-constants";
+import { defaultSectionLabel } from "./clean-layout";
 import { TEMPLATES, TEMPLATE_THUMNAILS } from "./template-thumbnails";
 
 function Heading({ children }: { children: string }) {
@@ -87,7 +82,12 @@ export default function ResumeDesignLayout({
   const set = <K extends keyof ResumeLayout>(key: K, value: ResumeLayout[K]) =>
     onChange({ ...designLayout, [key]: value });
 
-  const updateSection = (index: number, patch: Partial<ResumeLayout["resumeSections"][number]>) => set( "resumeSections",
+  const updateSection = (
+    index: number,
+    patch: Partial<ResumeLayout["resumeSections"][number]>,
+  ) =>
+    set(
+      "resumeSections",
       resumeSections.map((s, i) => (i === index ? { ...s, ...patch } : s)),
     );
 
@@ -110,7 +110,7 @@ export default function ResumeDesignLayout({
       }}
     >
       {/* Save status */}
-   <SaveIndicator status={saveStatus} onRetry={onRetry} />
+      <SaveIndicator status={saveStatus} onRetry={onRetry} />
 
       {/* Template */}
       <View>
@@ -156,11 +156,11 @@ export default function ResumeDesignLayout({
         </View>
       </View>
 
-{/* Font */}
-<View>
-  <Heading>Font</Heading>
-  <FontPicker value={fontFamily} onChange={(f) => set("fontFamily", f)} />
-</View>
+      {/* Font */}
+      <View>
+        <Heading>Font</Heading>
+        <FontPicker value={fontFamily} onChange={(f) => set("fontFamily", f)} />
+      </View>
 
       {/* Size */}
       <View>
@@ -254,6 +254,12 @@ export default function ResumeDesignLayout({
               <BottomSheetTextInput
                 value={section.label}
                 onChangeText={(t) => updateSection(i, { label: t })}
+                onBlur={() => {
+                  const cleaned =
+                    section.label.trim() || defaultSectionLabel(section.key);
+                  if (cleaned !== section.label)
+                    updateSection(i, { label: cleaned });
+                }}
                 placeholder="Section title"
                 placeholderTextColor="#8E8E93"
                 style={{
@@ -298,7 +304,6 @@ export default function ResumeDesignLayout({
           ))}
         </View>
       </View>
-
     </BottomSheetScrollView>
   );
 }
