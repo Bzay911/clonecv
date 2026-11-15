@@ -3,16 +3,20 @@ import {
   BottomSheetScrollView,
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
+import { useCallback } from "react";
 import { Image, Pressable, Text, useColorScheme, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import SaveIndicator from "../../lib/save-indicator";
-import FontPicker from "./font-picker";
+import Sortable, { type SortableGridRenderItem } from "react-native-sortables";
 
+import SaveIndicator from "../../lib/save-indicator";
 import type { SaveStatus } from "../../lib/use-autosave";
 import type { ResumeLayout } from "../../types/types";
-import { FONT_SIZES, SPACING } from "./design-constants";
 import { defaultSectionLabel } from "./clean-layout";
+import { FONT_SIZES, SPACING } from "./design-constants";
+import FontPicker from "./font-picker";
 import { TEMPLATES, TEMPLATE_THUMNAILS } from "./template-thumbnails";
+
+type Section = ResumeLayout["resumeSections"][number];
 
 function Heading({ children }: { children: string }) {
   return (
@@ -82,22 +86,74 @@ export default function ResumeDesignLayout({
   const set = <K extends keyof ResumeLayout>(key: K, value: ResumeLayout[K]) =>
     onChange({ ...designLayout, [key]: value });
 
-  const updateSection = (
-    index: number,
-    patch: Partial<ResumeLayout["resumeSections"][number]>,
-  ) =>
+  // Update by key, not index: rows change position when dragged
+  const updateSection = (key: string, patch: Partial<Section>) =>
     set(
       "resumeSections",
-      resumeSections.map((s, i) => (i === index ? { ...s, ...patch } : s)),
+      resumeSections.map((s) => (s.key === key ? { ...s, ...patch } : s)),
     );
 
-  const move = (index: number, dir: -1 | 1) => {
-    const target = index + dir;
-    if (target < 0 || target >= resumeSections.length) return;
-    const next = [...resumeSections];
-    [next[index], next[target]] = [next[target], next[index]];
-    set("resumeSections", next);
-  };
+  // How one draggable row looks
+  const renderSection: SortableGridRenderItem<Section> = useCallback(
+    ({ item: section }) => (
+      <View className="flex-row items-center gap-2 rounded-lg bg-[#F2F2F7] py-2 pl-2.5 pr-2 dark:bg-[#2C2C2E]">
+        <Ionicons name="reorder-three" size={22} color="#8E8E93" />
+
+        <BottomSheetTextInput
+          value={section.label}
+          onChangeText={(t) => updateSection(section.key, { label: t })}
+          onBlur={() => {
+            const cleaned =
+              section.label.trim() || defaultSectionLabel(section.key);
+            if (cleaned !== section.label)
+              updateSection(section.key, { label: cleaned });
+          }}
+          placeholder="Section title"
+          placeholderTextColor="#8E8E93"
+          style={{
+            flex: 1,
+            fontSize: 14,
+            paddingVertical: 6,
+            color: dark ? "#FFFFFF" : "#000000",
+            opacity: section.visible ? 1 : 0.5,
+          }}
+        />
+
+        <Pressable
+          onPress={() =>
+            updateSection(section.key, { visible: !section.visible })
+          }
+          accessibilityRole="switch"
+          accessibilityState={{ checked: section.visible }}
+          accessibilityLabel={`${section.label} ${
+            section.visible ? "visible" : "hidden"
+          }`}
+          className={`flex-row items-center gap-1.5 rounded-sm px-2.5 py-1 ${
+            section.visible
+              ? "bg-mint-soft dark:bg-mint-soft-dark"
+              : "bg-transparent"
+          }`}
+        >
+          <Ionicons
+            name={section.visible ? "eye-outline" : "eye-off-outline"}
+            size={14}
+            color={section.visible ? "#0A7154" : "#8E8E93"}
+          />
+          <Text
+            className={`text-xs font-semibold ${
+              section.visible
+                ? "text-mint-ink dark:text-mint-ink-dark"
+                : "text-[#8E8E93]"
+            }`}
+          >
+            {section.visible ? "Visible" : "Hidden"}
+          </Text>
+        </Pressable>
+      </View>
+    ),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [designLayout, dark],
+  );
 
   return (
     <BottomSheetScrollView
@@ -192,7 +248,7 @@ export default function ResumeDesignLayout({
         </View>
         <Text className="mt-2 text-xs text-[#8E8E93]">
           Template, font, size and spacing show in the PDF and on the website.
-          The preview here doesnt change for them.
+          The preview here doesn&apos;t change for them.
         </Text>
       </View>
 
@@ -215,94 +271,21 @@ export default function ResumeDesignLayout({
 
       {/* Sections */}
       <View>
-        <Heading>Sections</Heading>
-        <View className="gap-1.5">
-          {resumeSections.map((section, i) => (
-            <View
-              key={section.key}
-              className="flex-row items-center gap-2 rounded-lg bg-[#F2F2F7] py-2 pl-2.5 pr-2 dark:bg-[#2C2C2E]"
-            >
-              {/* Reorder */}
-              <View className="items-center">
-                <Pressable
-                  onPress={() => move(i, -1)}
-                  disabled={i === 0}
-                  hitSlop={6}
-                >
-                  <Ionicons
-                    name="chevron-up"
-                    size={18}
-                    color={i === 0 ? "#C7C7CC" : "#8E8E93"}
-                  />
-                </Pressable>
-                <Pressable
-                  onPress={() => move(i, 1)}
-                  disabled={i === resumeSections.length - 1}
-                  hitSlop={6}
-                >
-                  <Ionicons
-                    name="chevron-down"
-                    size={18}
-                    color={
-                      i === resumeSections.length - 1 ? "#C7C7CC" : "#8E8E93"
-                    }
-                  />
-                </Pressable>
-              </View>
+        <Text className="text-sm font-semibold text-black dark:text-white">
+          Sections
+        </Text>
+        <Text className="mb-2 mt-0.5 text-xs text-[#8E8E93]">
+          Drag a section to reorder it. Tap the eye to show or hide it.
+        </Text>
 
-              {/* Rename */}
-              <BottomSheetTextInput
-                value={section.label}
-                onChangeText={(t) => updateSection(i, { label: t })}
-                onBlur={() => {
-                  const cleaned =
-                    section.label.trim() || defaultSectionLabel(section.key);
-                  if (cleaned !== section.label)
-                    updateSection(i, { label: cleaned });
-                }}
-                placeholder="Section title"
-                placeholderTextColor="#8E8E93"
-                style={{
-                  flex: 1,
-                  fontSize: 14,
-                  paddingVertical: 6,
-                  color: dark ? "#FFFFFF" : "#000000",
-                  opacity: section.visible ? 1 : 0.5,
-                }}
-              />
-
-              {/* Show / hide */}
-              <Pressable
-                onPress={() => updateSection(i, { visible: !section.visible })}
-                accessibilityRole="switch"
-                accessibilityState={{ checked: section.visible }}
-                accessibilityLabel={`${section.label} ${
-                  section.visible ? "visible" : "hidden"
-                }`}
-                className={`flex-row items-center gap-1.5 rounded-sm px-2.5 py-1 ${
-                  section.visible
-                    ? "bg-mint-soft dark:bg-mint-soft-dark"
-                    : "bg-transparent"
-                }`}
-              >
-                <Ionicons
-                  name={section.visible ? "eye-outline" : "eye-off-outline"}
-                  size={14}
-                  color={section.visible ? "#0A7154" : "#8E8E93"}
-                />
-                <Text
-                  className={`text-xs font-semibold ${
-                    section.visible
-                      ? "text-mint-ink dark:text-mint-ink-dark"
-                      : "text-[#8E8E93]"
-                  }`}
-                >
-                  {section.visible ? "Visible" : "Hidden"}
-                </Text>
-              </Pressable>
-            </View>
-          ))}
-        </View>
+        <Sortable.Grid
+          columns={1}
+          rowGap={6}
+          data={resumeSections}
+          keyExtractor={(s) => s.key}
+          renderItem={renderSection}
+          onDragEnd={({ data }) => set("resumeSections", data)}
+        />
       </View>
     </BottomSheetScrollView>
   );
