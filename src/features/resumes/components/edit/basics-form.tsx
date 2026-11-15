@@ -4,7 +4,6 @@ import { Field, Section, type FormProps } from "./fields";
 export default function BasicsForm({ content, onChange }: FormProps) {
   const basics = content.basics ?? {};
 
-  // Change some fields of basics, keeping every other field (and every other section) as it is
   const updateBasics = (changes: Basics) => {
     onChange({ ...content, basics: { ...basics, ...changes } });
   };

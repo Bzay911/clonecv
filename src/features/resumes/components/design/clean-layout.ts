@@ -1,6 +1,5 @@
 import type { ResumeLayout } from "../../types/types";
 
-// Same headings the server uses for new resumes
 const DEFAULT_LABELS: Record<string, string> = {
   basics: "Summary",
   experiences: "Experience",

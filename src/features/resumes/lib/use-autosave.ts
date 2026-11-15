@@ -6,7 +6,7 @@ export type SaveStatus = "idle" | "saving" | "saved" | "error";
 
 type Options<T> = {
   value: T | null;
-  /** Plain save, used to flush when leaving the screen */
+  /** Plain save, used to flush when leaving the screen or before a download */
   flush: (value: T) => Promise<unknown>;
   /** The mutation used for normal autosaves */
   mutate: (value: T) => void;
@@ -18,6 +18,8 @@ export function useAutosave<T>({ value, flush, mutate, state }: Options<T>) {
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const unsaved = useRef<T | null>(null);
   const isFirst = useRef(true);
+  // const latest = useRef<T | null>(value);
+  // latest.current = value;
 
   useEffect(() => {
     if (!value) return;
@@ -57,5 +59,19 @@ export function useAutosave<T>({ value, flush, mutate, state }: Options<T>) {
     if (value) mutate(value);
   };
 
-  return { status, retry };
+  /**
+   * Makes sure the server has the latest value, and resolves when it does.
+   * Skips the request when nothing is waiting, in flight, or failed.
+   */
+const flushNow = async () => {
+  if (timer.current) {
+    clearTimeout(timer.current);
+    timer.current = null;
+  }
+  const needsSave = unsaved.current || state.isPending || state.isError;
+  unsaved.current = null;
+  if (needsSave && value) await flush(value);
+};
+
+  return { status, retry, flushNow };
 }

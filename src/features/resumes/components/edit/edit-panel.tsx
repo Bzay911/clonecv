@@ -14,7 +14,6 @@ type EditPanelProps = FormProps & {
   onRetry: () => void;
 };
 
-// Puts the save status and the five section forms together. Each form edits only its own section.
 export default function EditPanel({
   content,
   onChange,

@@ -75,16 +75,6 @@ export default function HomeScreen() {
             placeholderClassName="text-ink-muted dark:text-ink-muted-dark"
             className="min-h-28 rounded-md border border-line-strong bg-surface-raised px-3.5 py-3 text-sm text-ink dark:border-line-strong-dark dark:bg-surface-raised-dark dark:text-ink-dark"
           />
-          {/* <View>
-
-          <Text className="text-xs text-ink-muted dark:text-ink-muted-dark">
-            Just need a resume?
-          </Text>
-          <Pressable>
-            <Text className="text-xs text-blue-500">Go to resumes</Text>
-           <Ionicons name="arrow-forward" size={18} color="blue" />
-          </Pressable>
-          </View> */}
         </View>
 
         <Pressable

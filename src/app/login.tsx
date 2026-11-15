@@ -20,7 +20,6 @@ import { authClient } from '@/lib/auth-client';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
 export default function LoginScreen() {
-  // Icons and the placeholder take colour props, not classes, so they still read the theme.
   const colors = useTheme();
   const [email, setEmail] = useState('');
   const [error, setError] = useState<string | null>(null);
