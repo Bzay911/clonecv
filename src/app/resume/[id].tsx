@@ -4,7 +4,6 @@ import { Stack, useLocalSearchParams } from "expo-router";
 import { useState } from "react";
 import {
   ActivityIndicator,
-  Alert,
   Pressable,
   Text,
   useColorScheme,
@@ -14,7 +13,7 @@ import {
 import { ResumableZoom } from "react-native-zoom-toolkit";
 import { useQueryClient } from "@tanstack/react-query";
 
-import ResumeChat from "@/features/resumes/components/chat/resume-chat";
+import ResumeChat from "../../features/resumes/components/chat/resume-chat";
 import ResumeDesignLayout from "@/features/resumes/components/design/resume-design";
 import EditPanel from "@/features/resumes/components/edit/edit-panel";
 import ResumePage, {
@@ -35,6 +34,7 @@ import type {
   ResumeLayout,
 } from "@/features/resumes/types/types";
 import { useAutosave } from "../../features/resumes/lib/use-autosave";
+import { useDownloadResumePdf } from "../../features/resumes/queries/download-resume-pdf";
 
 const TABS = ["Chat", "Edit", "Design"] as const;
 type Tab = (typeof TABS)[number];
@@ -43,6 +43,7 @@ export default function ResumeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: resume, error, isLoading } = useResume(id);
   const queryClient = useQueryClient();
+  const downloadResumePdf = useDownloadResumePdf();
   const [tab, setTab] = useState<Tab>("Chat");
   const dark = useColorScheme() === "dark";
   const { width, height } = useWindowDimensions();
@@ -59,7 +60,6 @@ export default function ResumeDetailScreen() {
     state: saveContent,
   });
 
-  // Design edits. Same idea: null = nothing changed yet
   const [layoutEdits, setLayoutEdits] = useState<ResumeLayout | null>(null);
   const layoutDraft = layoutEdits ?? resume?.designLayout ?? null;
 
@@ -75,10 +75,18 @@ export default function ResumeDetailScreen() {
   });
 
   const onDownload = () =>
-    Alert.alert("Download resume?", undefined, [
-      { text: "Cancel", style: "cancel" },
-      { text: "Download" },
-    ]);
+    downloadResumePdf.mutate({
+      id,
+      name: resume?.resumeName ?? "Resume",
+      // The server renders the saved copy, so push any pending edits first
+      beforeDownload: async () => {
+        try {
+          await Promise.all([autosave.flushNow(), layoutAutosave.flushNow()]);
+        } catch {
+          throw new Error("Couldn't save your latest changes. Try again.");
+        }
+      },
+    });
 
   if (isLoading) return <ActivityIndicator className="flex-1" />;
   if (error || !resume)
@@ -94,22 +102,31 @@ export default function ResumeDetailScreen() {
         options={{
           title: resume.resumeName,
           headerRight: () => (
-            <Pressable onPress={onDownload} hitSlop={8}>
-              <Ionicons
-                name="download-outline"
-                size={22}
-                color={dark ? "#FFFFFF" : "#000000"}
-              />
+            <Pressable
+              onPress={onDownload}
+              disabled={downloadResumePdf.isPending}
+              hitSlop={8}
+            >
+              {downloadResumePdf.isPending ? (
+                <ActivityIndicator
+                  size="small"
+                  color={dark ? "#FFFFFF" : "#000000"}
+                />
+              ) : (
+                <Ionicons
+                  name="download-outline"
+                  size={22}
+                  color={dark ? "#FFFFFF" : "#000000"}
+                />
+              )}
             </Pressable>
           ),
         }}
       />
       <ResumableZoom
-        // Stop at the page's real size; zooming past it stretches the text and blurs it.
         maxScale={PAGE_WIDTH / (width - 32)}
         style={{
           flex: 1,
-          // Keep the page clear of the collapsed sheet (its 15% snap point).
           marginBottom: height * 0.15,
           backgroundColor: dark ? "#000000" : "#F2F2F7",
         }}

@@ -22,8 +22,6 @@ const SECTIONS: { title: string; icon: IconName; value?: string }[][] = [
   ],
 ];
 
-
-
 export default function AccountScreen() {
   const iconColor = useColorScheme() === 'dark' ? '#FFFFFF' : '#000000';
   const mutedColor = '#8E8E93';
@@ -37,7 +35,6 @@ export default function AccountScreen() {
   const usage = me?.usage;
 
   return (
-    // Must be the screen's first child with automatic insets for the large title to collapse on scroll.
     <ScrollView
       contentInsetAdjustmentBehavior="automatic"
       className="flex-1 bg-[#F2F2F7] dark:bg-black"
