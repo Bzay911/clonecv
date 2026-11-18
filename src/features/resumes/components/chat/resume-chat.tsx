@@ -3,7 +3,8 @@ import {
   BottomSheetScrollView,
   BottomSheetTextInput,
 } from "@gorhom/bottom-sheet";
-import { useRef, type ComponentRef } from "react";
+import { isToolUIPart } from "ai";
+import { useRef, useState, type ComponentRef } from "react";
 import { Pressable, Text, useColorScheme, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
@@ -16,17 +17,22 @@ function toolLabel(type: string, state?: string) {
     .replace(/([a-z])([A-Z])/g, "$1 $2")
     .trim();
   if (state === "output-error") return `Couldn't update ${name.toLowerCase()}`;
-  return `Update ${name} updated`;
+  return `${name} updated`;
 }
 
 // Turns a stored message into what a bubble shows: its text, plus a chip per AI edit.
 function toBubble(message: ChatMessage) {
   const text = message.parts
-    .filter((p) => p.type === "text" && p.text?.trim())
-    .map((p) => p.text)
+    .flatMap((part) =>
+      part.type === "text" && part.text.trim() ? [part.text] : [],
+    )
     .join("\n\n");
   const tools = message.parts
-    .filter((p) => p.type.startsWith("tool-"))
+    .filter(isToolUIPart)
+    .filter(
+      (part) =>
+        part.state === "output-available" || part.state === "output-error",
+    )
     .map((p) => ({
       label: toolLabel(p.type, p.state),
       failed: p.state === "output-error",
@@ -34,13 +40,31 @@ function toBubble(message: ChatMessage) {
   return { text, tools };
 }
 
-// Read-only for now: shows the conversation saved on the server. Sending comes later.
-export default function ResumeChat({ messages }: { messages: ChatMessage[] }) {
+type ResumeChatProps = {
+  messages: ChatMessage[];
+  busy: boolean;
+  failed: boolean;
+  onSend: (text: string) => Promise<void>;
+};
+
+export default function ResumeChat({
+  messages,
+  busy,
+  failed,
+  onSend,
+}: ResumeChatProps) {
   const dark = useColorScheme() === "dark";
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ComponentRef<typeof BottomSheetScrollView>>(null);
 
-  console.log(JSON.stringify(messages, null, 2));
+  const [input, setInput] = useState("");
+  const canSend = input.trim().length > 0 && !busy;
+
+  const send = () => {
+    if (!canSend) return;
+    void onSend(input.trim());
+    setInput("");
+  };
 
   const bubbles = messages
     .filter((m) => m.role !== "system")
@@ -63,8 +87,7 @@ export default function ResumeChat({ messages }: { messages: ChatMessage[] }) {
       >
         {bubbles.length === 0 && (
           <Text className="px-4 pt-6 text-center text-sm text-[#8E8E93]">
-            No messages yet. Chat with the AI on the website to edit this
-            resume, and the conversation shows here.
+            Ask for feedback on your resume.
           </Text>
         )}
 
@@ -122,6 +145,17 @@ export default function ResumeChat({ messages }: { messages: ChatMessage[] }) {
             </View>
           );
         })}
+        {busy && (
+          <Text className="text-xs text-[#8E8E93]">Replying…</Text>
+        )}
+        {failed && (
+          <Text
+            accessibilityRole="alert"
+            className="text-sm text-rose-ink dark:text-rose-ink-dark"
+          >
+            The reply couldn’t be loaded. Try sending your message again.
+          </Text>
+        )}
       </BottomSheetScrollView>
 
       <View
@@ -129,8 +163,9 @@ export default function ResumeChat({ messages }: { messages: ChatMessage[] }) {
         className="flex-row items-end gap-2 border-t border-[#E5E5EA] px-4 pt-2 dark:border-[#38383A]"
       >
         <BottomSheetTextInput
-          editable={false}
-          placeholder="Sending from the app is coming soon"
+          value={input}
+          onChangeText={setInput}
+          placeholder="Message the resume assistant"
           placeholderTextColor="#8E8E93"
           multiline
           style={{
@@ -145,9 +180,13 @@ export default function ResumeChat({ messages }: { messages: ChatMessage[] }) {
           }}
         />
         <Pressable
-          disabled
+          disabled={!canSend}
+          onPress={send}
           accessibilityLabel="Send"
-          className="h-10 w-10 items-center justify-center rounded-full bg-sky opacity-40 dark:bg-sky-dark"
+          accessibilityState={{ disabled: !canSend }}
+          className={`h-10 w-10 items-center justify-center rounded-full bg-sky dark:bg-sky-dark ${
+            canSend ? "" : "opacity-40"
+          }`}
         >
           <Ionicons name="arrow-up" size={20} color="#FFFFFF" />
         </Pressable>

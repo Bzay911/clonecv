@@ -1,7 +1,7 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -34,6 +34,7 @@ import type {
   ResumeLayout,
 } from "@/features/resumes/types/types";
 import { findCustomSection, syncCustomSectionLayout } from "@/features/resumes/lib/custom-section-layout";
+import { useResumeChat } from "@/features/resumes/lib/use-resume-chat";
 import { useAutosave } from "../../features/resumes/lib/use-autosave";
 import { useDownloadResumePdf } from "../../features/resumes/queries/download-resume-pdf";
 
@@ -43,6 +44,7 @@ type Tab = (typeof TABS)[number];
 export default function ResumeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: resume, error, isLoading } = useResume(id);
+  const chat = useResumeChat(resume);
   const queryClient = useQueryClient();
   const downloadResumePdf = useDownloadResumePdf();
   const [tab, setTab] = useState<Tab>("Chat");
@@ -60,8 +62,6 @@ export default function ResumeDetailScreen() {
     mutate: (content) => saveContent.mutate({ id, content }),
     state: saveContent,
   });
-
-  // console.log("Chat messages:", resume?.messages);
 
   const [layoutEdits, setLayoutEdits] = useState<ResumeLayout | null>(null);
   const layoutDraft = layoutEdits ?? resume?.designLayout ?? null;
@@ -199,7 +199,25 @@ export default function ResumeDetailScreen() {
           </View>
         </View>
 
-        {tab === "Chat" && <ResumeChat messages={resume.messages} />}
+        {tab === "Chat" && draft && layoutDraft && (
+          <ResumeChat
+            messages={chat.messages}
+            busy={chat.status === "submitted" || chat.status === "streaming"}
+            failed={chat.status === "error"}
+            onSend={(text) =>
+              chat.sendMessage(
+                { text, metadata: { createdAt: new Date().toISOString() } },
+                {
+                  body: {
+                    resumeId: id,
+                    content: draft,
+                    designLayout: layoutDraft,
+                  },
+                },
+              )
+            }
+          />
+        )}
         {tab === "Edit" && draft && (
           <EditPanel
             content={draft}

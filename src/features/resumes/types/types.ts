@@ -1,3 +1,5 @@
+import type { UIMessage } from "ai";
+
 export type Resume = {
   id: string;
   resumeName: string;
@@ -90,12 +92,7 @@ export type ResumeDetail = Resume & {
   messages: ChatMessage[];
 };
 
-/** One piece of a chat message (Vercel AI SDK format). Text parts carry `text`; tool parts ("tool-updateExperience") carry `state`. */
-export type ChatPart = { type: string; text?: string; state?: string };
-
-export type ChatMessage = {
-  id: string;
-  role: "user" | "assistant" | "system";
-  parts: ChatPart[];
-  metadata?: { createdAt?: string };
-};
+export type ChatMessage = UIMessage<{
+  createdAt?: string;
+  totalTokens?: number;
+}>;
