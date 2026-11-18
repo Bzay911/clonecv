@@ -33,6 +33,7 @@ import type {
   ResumeContent,
   ResumeLayout,
 } from "@/features/resumes/types/types";
+import { findCustomSection, syncCustomSectionLayout } from "@/features/resumes/lib/custom-section-layout";
 import { useAutosave } from "../../features/resumes/lib/use-autosave";
 import { useDownloadResumePdf } from "../../features/resumes/queries/download-resume-pdf";
 
@@ -60,6 +61,8 @@ export default function ResumeDetailScreen() {
     state: saveContent,
   });
 
+  // console.log("Chat messages:", resume?.messages);
+
   const [layoutEdits, setLayoutEdits] = useState<ResumeLayout | null>(null);
   const layoutDraft = layoutEdits ?? resume?.designLayout ?? null;
 
@@ -73,6 +76,40 @@ export default function ResumeDetailScreen() {
     mutate: (designLayout) => saveLayout.mutate({ id, designLayout }),
     state: saveLayout,
   });
+
+  const updateContent = (content: ResumeContent) => {
+    setEdits(content);
+    if (!layoutDraft || content.customSections === draft?.customSections) return;
+
+    const layout = syncCustomSectionLayout(
+      layoutDraft,
+      draft?.customSections ?? [],
+      content.customSections ?? [],
+    );
+    if (layout !== layoutDraft) setLayoutEdits(layout);
+  };
+
+  const updateLayout = (layout: ResumeLayout) => {
+    setLayoutEdits(layout);
+    if (!draft?.customSections?.length || !layoutDraft) return;
+
+    const titles = new Map<string, string>();
+    for (const entry of layout.resumeSections) {
+      const previous = layoutDraft.resumeSections.find((section) => section.key === entry.key);
+      if (entry.label === previous?.label) continue;
+      const section = findCustomSection(draft.customSections, entry.key);
+      if (section) titles.set(section.id, entry.label);
+    }
+    if (!titles.size) return;
+
+    setEdits({
+      ...draft,
+      customSections: draft.customSections.map((section) => {
+        const title = titles.get(section.id);
+        return title === undefined ? section : { ...section, title };
+      }),
+    });
+  };
 
   const onDownload = () =>
     downloadResumePdf.mutate({
@@ -166,7 +203,7 @@ export default function ResumeDetailScreen() {
         {tab === "Edit" && draft && (
           <EditPanel
             content={draft}
-            onChange={setEdits}
+            onChange={updateContent}
             saveStatus={autosave.status}
             onRetry={autosave.retry}
           />
@@ -174,7 +211,7 @@ export default function ResumeDetailScreen() {
         {tab === "Design" && layoutDraft && (
           <ResumeDesignLayout
             designLayout={layoutDraft}
-            onChange={setLayoutEdits}
+            onChange={updateLayout}
             saveStatus={layoutAutosave.status}
             onRetry={layoutAutosave.retry}
           />

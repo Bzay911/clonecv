@@ -8,6 +8,9 @@ import {type FormProps } from "./fields";
 import ProjectsForm from "./projects-form";
 import SkillsForm from "./skills-form";
 import SaveIndicator from "../../lib/save-indicator";
+import CertificationsForm from "./certifications-form";
+import ReferencesForm from "./references-form";
+import CustomSectionsForm from "./custom-sections-form";
 
 type EditPanelProps = FormProps & {
   saveStatus: SaveStatus;
@@ -32,9 +35,12 @@ export default function EditPanel({
       <SaveIndicator status={saveStatus} onRetry={onRetry} />
       <BasicsForm content={content} onChange={onChange} />
       <ExperienceForm content={content} onChange={onChange} />
-      <EducationForm content={content} onChange={onChange} />
       <SkillsForm content={content} onChange={onChange} />
+      <EducationForm content={content} onChange={onChange} />
       <ProjectsForm content={content} onChange={onChange} />
+      <CertificationsForm content={content} onChange={onChange} />
+      <ReferencesForm content={content} onChange={onChange} />
+      <CustomSectionsForm content={content} onChange={onChange} />
     </BottomSheetScrollView>
   );
 }

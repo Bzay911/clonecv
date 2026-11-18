@@ -40,7 +40,7 @@ export default function ResumeChat({ messages }: { messages: ChatMessage[] }) {
   const insets = useSafeAreaInsets();
   const scrollRef = useRef<ComponentRef<typeof BottomSheetScrollView>>(null);
 
-  // console.log(JSON.stringify(messages, null, 2));
+  console.log(JSON.stringify(messages, null, 2));
 
   const bubbles = messages
     .filter((m) => m.role !== "system")

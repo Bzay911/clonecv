@@ -23,5 +23,13 @@ export function cleanContent(content: ResumeContent): ResumeContent {
       .filter((skill) => skill.name !== "");
   }
 
+  if (content.customSections) {
+    cleaned.customSections = content.customSections.map((section) => ({
+      ...section,
+      title: section.title.trim() || "Untitled section",
+      highlights: section.highlights.map((line) => line.trim()).filter(Boolean),
+    }));
+  }
+
   return cleaned;
 }

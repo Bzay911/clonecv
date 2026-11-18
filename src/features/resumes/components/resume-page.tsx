@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Text, useWindowDimensions, View } from "react-native";
 
+import { findCustomSection } from "../lib/custom-section-layout";
 import type { ResumeContent, ResumeLayout } from "../types/types";
 
 // A4 width in px. The page is drawn at this size, then shrunk to fit the screen like a document.
@@ -203,16 +204,19 @@ function renderSection(
               <Text className="text-xs italic text-[#4A4A4A]">
                 {[r.relationship, r.email, r.phone].filter(Boolean).join(" · ")}
               </Text>
+              {!!r.description && (
+                <Text className="text-sm text-black">{r.description}</Text>
+              )}
             </View>
           ))
         : null;
 
     default: {
-      // Custom sections are saved as "custom-0", "custom-1", ... → customSections[index]
-      const index = key.startsWith("custom-") ? Number(key.slice(7)) : -1;
-      const custom = customSections[index];
-      return custom?.highlights.length
-        ? custom.highlights.map((h, i) => (
+      const highlights = findCustomSection(customSections, key)?.highlights
+        .map((line) => line.trim())
+        .filter(Boolean);
+      return highlights?.length
+        ? highlights.map((h, i) => (
             <Text key={i} className="text-sm text-black">
               • {h}
             </Text>
