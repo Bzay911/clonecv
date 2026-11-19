@@ -16,11 +16,17 @@ const transport = new DefaultChatTransport<ChatMessage>({
   }),
 });
 
-
-export function useResumeChat(resume?: ResumeDetail) {
+export function useResumeChat(
+  resume: ResumeDetail | undefined,
+  onReplyComplete: (message: ChatMessage) => void,
+) {
   return useChat<ChatMessage>({
     id: resume?.id ?? "loading-resume",
     messages: resume?.messages,
     transport,
+    onFinish: ({ message, isAbort, isDisconnect, isError, finishReason }) => {
+      if (isAbort || isDisconnect || isError || finishReason === "error") return;
+      onReplyComplete(message);
+    },
   });
 }

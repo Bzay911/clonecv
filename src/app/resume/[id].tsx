@@ -1,7 +1,8 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
 import BottomSheet from "@gorhom/bottom-sheet";
 import { Stack, useLocalSearchParams } from "expo-router";
-import { useState, useEffect } from "react";
+import { isToolUIPart } from "ai";
+import { useState, useRef } from "react";
 import {
   ActivityIndicator,
   Pressable,
@@ -30,6 +31,7 @@ import {
   useSaveResumeContent,
 } from "@/features/resumes/queries/save-resume-content";
 import type {
+  ChatMessage,
   ResumeContent,
   ResumeLayout,
 } from "@/features/resumes/types/types";
@@ -41,10 +43,27 @@ import { useDownloadResumePdf } from "../../features/resumes/queries/download-re
 const TABS = ["Chat", "Edit", "Design"] as const;
 type Tab = (typeof TABS)[number];
 
+const AI_EDIT_SECTIONS = {
+  basics: "Personal information",
+  experiences: "Experience",
+  education: "Education",
+  skills: "Skills",
+  projects: "Projects",
+  certifications: "Certifications",
+  references: "References",
+  customSections: "Custom sections",
+} satisfies Record<keyof ResumeContent, string>;
+
+function isResumeSection(value: unknown): value is keyof ResumeContent {
+  return (
+    typeof value === "string" &&
+    Object.prototype.hasOwnProperty.call(AI_EDIT_SECTIONS, value)
+  );
+}
+
 export default function ResumeDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const { data: resume, error, isLoading } = useResume(id);
-  const chat = useResumeChat(resume);
   const queryClient = useQueryClient();
   const downloadResumePdf = useDownloadResumePdf();
   const [tab, setTab] = useState<Tab>("Chat");
@@ -54,6 +73,8 @@ export default function ResumeDetailScreen() {
   // Content edits. null = nothing edited yet, so the draft is just the server's content
   const [edits, setEdits] = useState<ResumeContent | null>(null);
   const draft = edits ?? resume?.content ?? null;
+  const draftAtSend = useRef<ResumeContent | null>(null);
+  const [aiEditNotice, setAiEditNotice] = useState<string | null>(null);
 
   const saveContent = useSaveResumeContent();
   const autosave = useAutosave<ResumeContent>({
@@ -74,7 +95,7 @@ export default function ResumeDetailScreen() {
         applyLayoutToCache(queryClient, id, designLayout),
       ),
     mutate: (designLayout) => saveLayout.mutate({ id, designLayout }),
-    state: saveLayout,
+    state: saveLayout, 
   });
 
   const updateContent = (content: ResumeContent) => {
@@ -88,6 +109,50 @@ export default function ResumeDetailScreen() {
     );
     if (layout !== layoutDraft) setLayoutEdits(layout);
   };
+
+  const applyAiEdits = (message: ChatMessage) => {
+    const sentDraft = draftAtSend.current;
+    draftAtSend.current = null;
+    if (!sentDraft || !draft) return;
+
+    let updatedDraft = draft;
+    const skippedSections = new Set<string>();
+
+    for (const part of message.parts) {
+      if (!isToolUIPart(part) || part.state !== "output-available") continue;
+
+      const output = part.output;
+      if (!output || typeof output !== "object") continue;
+      if (!("section" in output) || !("data" in output)) continue;
+
+      const { section, data } = output;
+      if (!isResumeSection(section)) continue;
+
+      // The server validates the fields. Check the expected container here.
+      const validShape = section === "basics"
+        ? data !== null && typeof data === "object" && !Array.isArray(data)
+        : Array.isArray(data);
+        
+      if (!validShape) continue;
+
+      if (JSON.stringify(draft[section]) !== JSON.stringify(sentDraft[section])) {
+        skippedSections.add(AI_EDIT_SECTIONS[section]);
+        continue;
+      }
+
+      updatedDraft = { ...updatedDraft, [section]: data };
+    }
+
+    if (updatedDraft !== draft) updateContent(updatedDraft);
+
+    if (skippedSections.size) {
+      setAiEditNotice(
+        `Kept your changes to ${[...skippedSections].join(", ")} because you edited those sections while the assistant was replying.`,
+      );
+    }
+  };
+
+  const chat = useResumeChat(resume, applyAiEdits);
 
   const updateLayout = (layout: ResumeLayout) => {
     setLayoutEdits(layout);
@@ -204,18 +269,21 @@ export default function ResumeDetailScreen() {
             messages={chat.messages}
             busy={chat.status === "submitted" || chat.status === "streaming"}
             failed={chat.status === "error"}
-            onSend={(text) =>
-              chat.sendMessage(
+            editNotice={aiEditNotice}
+            onSend={(text) => {
+              draftAtSend.current = draft;
+              setAiEditNotice(null);
+              return chat.sendMessage(
                 { text, metadata: { createdAt: new Date().toISOString() } },
                 {
                   body: {
                     resumeId: id,
-                    content: draft,
+                    content: draft,  
                     designLayout: layoutDraft,
                   },
                 },
-              )
-            }
+              );
+            }}
           />
         )}
         {tab === "Edit" && draft && (

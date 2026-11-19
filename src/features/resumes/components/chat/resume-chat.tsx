@@ -44,6 +44,7 @@ type ResumeChatProps = {
   messages: ChatMessage[];
   busy: boolean;
   failed: boolean;
+  editNotice: string | null;
   onSend: (text: string) => Promise<void>;
 };
 
@@ -51,6 +52,7 @@ export default function ResumeChat({
   messages,
   busy,
   failed,
+  editNotice,
   onSend,
 }: ResumeChatProps) {
   const dark = useColorScheme() === "dark";
@@ -154,6 +156,11 @@ export default function ResumeChat({
             className="text-sm text-rose-ink dark:text-rose-ink-dark"
           >
             The reply couldn’t be loaded. Try sending your message again.
+          </Text>
+        )}
+        {editNotice && (
+          <Text accessibilityRole="alert" className="text-sm text-[#8E8E93]">
+            {editNotice}
           </Text>
         )}
       </BottomSheetScrollView>
