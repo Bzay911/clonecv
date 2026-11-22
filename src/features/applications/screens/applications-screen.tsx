@@ -1,92 +1,88 @@
 import Ionicons from "@expo/vector-icons/Ionicons";
-import { useState } from "react";
-import { Pressable, ScrollView, Text, TextInput, View } from "react-native";
+import {
+  ActivityIndicator,
+  FlatList,
+  Text,
+  useColorScheme,
+  View,
+} from "react-native";
+
+import { useApplications } from "@/features/applications/queries/get-applications";
+import type { Application } from "@/features/applications/types/types";
+
+const dateFormat = new Intl.DateTimeFormat("en-AU", {
+  day: "numeric",
+  month: "short",
+});
 
 export default function ApplicationsScreen() {
-  const [composing, setComposing] = useState(false);
-  const [description, setDescription] = useState("");
-
-  const cancel = () => {
-    setComposing(false);
-    setDescription("");
-  };
-
-  const canGenerate = description.trim().length > 0;
+  const dark = useColorScheme() === "dark";
+  const {
+    data: applications = [],
+    error,
+    isLoading,
+    refetch,
+    isRefetching,
+  } = useApplications();
 
   return (
-    <ScrollView
+    <FlatList<Application>
+      data={applications}
+      onRefresh={refetch}
+      refreshing={isRefetching}
+      ListEmptyComponent={
+        isLoading ? (
+          <ActivityIndicator className="mt-10" />
+        ) : (
+          <Text className="mt-10 text-center text-sm text-ink-muted dark:text-ink-muted-dark">
+            {error?.message ?? "No applications yet"}
+          </Text>
+        )
+      }
+      keyExtractor={(item) => item.id}
       contentInsetAdjustmentBehavior="automatic"
-      automaticallyAdjustKeyboardInsets
-      keyboardShouldPersistTaps="handled"
-      className="flex-1 bg-[#F2F2F7] dark:bg-black"
-      contentContainerClassName="flex-grow px-4 pb-28 pt-3"
-    >
-      {composing ? (
-        <View className="gap-4">
-          <View className="gap-1">
-            <Text className="text-lg font-bold text-black dark:text-white">
-              New application
-            </Text>
-            <Text className="text-sm text-[#8E8E93]">
-              Found a role you like? Paste it here and get everything you need
-              to apply.
-            </Text>
-          </View>
-
-          <View className="gap-3 rounded-lg bg-white p-3 dark:bg-[#1C1C1E]">
-            <TextInput
-              value={description}
-              onChangeText={setDescription}
-              autoFocus
-              multiline
-              textAlignVertical="top"
-              placeholder="Paste the full job description, including the title, company, and requirements"
-              placeholderTextColor="#8E8E93"
-              className="min-h-48 max-h-96 px-1 text-sm text-black dark:text-white"
+      className="flex-1 bg-white dark:bg-black"
+      contentContainerClassName="px-4 pb-28 pt-3"
+      ItemSeparatorComponent={() => (
+        <View className="h-px bg-line dark:bg-line-dark" />
+      )}
+      renderItem={({ item }) => (
+        <View className="flex-row items-center gap-3 py-4">
+          <View className="h-10 w-10 items-center justify-center rounded-sm bg-sky-soft dark:bg-sky-soft-dark">
+            <Ionicons
+              name="briefcase-outline"
+              size={20}
+              color={dark ? "#6AAEFF" : "#2563C9"}
+              accessible={false}
             />
-            <View className="flex-row items-center justify-end gap-2">
-              <Pressable onPress={cancel} className="px-4 py-2.5">
-                <Text className="text-sm font-semibold text-[#8E8E93]">
-                  Cancel
-                </Text>
-              </Pressable>
-              <Pressable
-                disabled={!canGenerate}
-                className={`flex-row items-center gap-1.5 rounded-md bg-sky px-4 py-2.5 active:bg-sky-pressed dark:bg-sky-dark dark:active:bg-sky-pressed-dark ${canGenerate ? "" : "opacity-50"}`}
+          </View>
+          <View className="min-w-0 flex-1 gap-0.5">
+            <Text
+              className="text-sm font-semibold text-ink dark:text-ink-dark"
+              numberOfLines={2}
+            >
+              {item.jobTitle || item.title || "Untitled application"}
+            </Text>
+            {(item.company || item.location) ? (
+              <Text
+                className="text-xs text-ink-muted dark:text-ink-muted-dark"
+                numberOfLines={2}
               >
-                <Text className="text-sm font-semibold text-on-sky dark:text-on-sky-dark">
-                  Generate
-                </Text>
-                <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
-              </Pressable>
-            </View>
+                {item.company ? (
+                  <Text className="font-medium text-ink dark:text-ink-dark">
+                    {item.company}
+                  </Text>
+                ) : null}
+                {item.company && item.location ? "  " : ""}
+                {item.location}
+              </Text>
+            ) : null}
           </View>
-        </View>
-      ) : (
-        <View className="flex-1 items-center justify-center gap-4 px-6">
-          <View className="h-16 w-16 items-center justify-center rounded-lg bg-sky-soft dark:bg-sky-soft-dark">
-            <Ionicons name="briefcase-outline" size={30} color="#2563C9" />
-          </View>
-          <View className="items-center gap-1">
-            <Text className="text-lg font-bold text-black dark:text-white">
-              No applications yet
-            </Text>
-            <Text className="text-center text-sm text-[#8E8E93]">
-              Paste a job description and we&apos;ll tailor your resume and
-              cover letter for it. Want to create your first one?
-            </Text>
-          </View>
-          <Pressable
-            onPress={() => setComposing(true)}
-            className="flex-row items-center gap-1.5 rounded-full bg-sky px-5 py-3 active:bg-sky-pressed dark:bg-sky-dark dark:active:bg-sky-pressed-dark"
-          >
-            <Ionicons name="add" size={20} color="#FFFFFF" />
-            <Text className="text-sm font-semibold text-on-sky dark:text-on-sky-dark">
-              Create application
-            </Text>
-          </Pressable>
+          <Text className="shrink-0 text-xs text-ink-muted dark:text-ink-muted-dark">
+            {dateFormat.format(new Date(item.createdAt))}
+          </Text>
         </View>
       )}
-    </ScrollView>
+    />
   );
 }
