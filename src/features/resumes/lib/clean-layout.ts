@@ -1,4 +1,4 @@
-import type { ResumeLayout } from "../../types/types";
+import type { ResumeLayout } from "../types/types";
 
 const DEFAULT_LABELS: Record<string, string> = {
   basics: "Summary",

@@ -3,7 +3,7 @@ import { Platform } from 'react-native';
 
 import { useColorScheme } from '@/hooks/use-color-scheme';
 
-export default function AccountLayout() {
+export default function ApplicationsLayout() {
   const dark = useColorScheme() === 'dark';
   const text = dark ? '#FFFFFF' : '#000000';
 

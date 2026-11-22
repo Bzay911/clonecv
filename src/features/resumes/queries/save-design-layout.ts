@@ -1,7 +1,7 @@
 import { useMutation, useQueryClient, type QueryClient } from "@tanstack/react-query";
 
 import { api } from "@/lib/api";
-import { cleanLayout } from "../components/design/clean-layout";
+import { cleanLayout } from "../lib/clean-layout";
 import type { ResumeDetail, ResumeLayout } from "../types/types";
 import { resumeKeys } from "./keys";
 

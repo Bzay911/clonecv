@@ -8,10 +8,10 @@ import { Image, Pressable, Text, useColorScheme, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Sortable, { type SortableGridRenderItem } from "react-native-sortables";
 
-import SaveIndicator from "../../lib/save-indicator";
-import type { SaveStatus } from "../../lib/use-autosave";
+import SaveIndicator from "../save-indicator";
+import type { SaveStatus } from "../../hooks/use-autosave";
 import type { ResumeLayout } from "../../types/types";
-import { defaultSectionLabel } from "./clean-layout";
+import { defaultSectionLabel } from "../../lib/clean-layout";
 import { FONT_SIZES, SPACING } from "./design-constants";
 import FontPicker from "./font-picker";
 import { TEMPLATES, TEMPLATE_THUMNAILS } from "./template-thumbnails";

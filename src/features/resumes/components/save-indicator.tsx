@@ -2,7 +2,7 @@ import Ionicons from "@expo/vector-icons/Ionicons";
 import { Pressable, Text, useColorScheme, View } from "react-native";
 import { useState, useEffect } from "react";
 
-import type { SaveStatus } from "./use-autosave";
+import type { SaveStatus } from "../hooks/use-autosave";
 
 export default function SaveIndicator({
   status,

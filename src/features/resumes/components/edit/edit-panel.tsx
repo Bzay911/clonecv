@@ -1,13 +1,13 @@
 import { BottomSheetScrollView } from "@gorhom/bottom-sheet";
 
-import type { SaveStatus } from "../../lib/use-autosave";
+import type { SaveStatus } from "../../hooks/use-autosave";
 import BasicsForm from "./basics-form";
 import EducationForm from "./education-form";
 import ExperienceForm from "./experience-form";
 import {type FormProps } from "./fields";
 import ProjectsForm from "./projects-form";
 import SkillsForm from "./skills-form";
-import SaveIndicator from "../../lib/save-indicator";
+import SaveIndicator from "../save-indicator";
 import CertificationsForm from "./certifications-form";
 import ReferencesForm from "./references-form";
 import CustomSectionsForm from "./custom-sections-form";
